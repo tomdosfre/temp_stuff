@@ -1,1 +1,307 @@
-$(cat "/private/tmp/claude-501/-Users-tdf-Documents-Claude-PERSONAL-OS/d103946e-ac88-4b68-a0e5-0f9d1d1a5770/scratchpad/site-vision.html")
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THA site vision — visualized · 2026-08-10</title>
+<style>
+  :root{--ink:#1f2733;--muted:#6b7684;--border:#e6e8eb;--coral:#F0533B;--coral-ink:#C9381F;--coral-bg:#FFF1ED;
+        --keep:#0E7A3C;--keep-bg:#E9F6ED;--carry:#8A6208;--carry-bg:#FDF4E3;--stretch:#1F62D8;--stretch-bg:#EDF3FE;--frontier:#7A3BD1;--frontier-bg:#F2ECFD}
+  *{box-sizing:border-box}
+  body{margin:0;background:#fff;color:var(--ink);font:15px/1.5 Roboto,system-ui,-apple-system,"Segoe UI",Arial,sans-serif;padding:36px 18px 80px}
+  .wrap{max-width:980px;margin:0 auto}
+  h1{font-size:28px;font-weight:500;letter-spacing:-.02em;margin:0 0 4px}
+  h1 em{font-style:normal;color:var(--coral-ink)}
+  .sub{color:var(--muted);font-size:14px;margin:0 0 34px}
+  .eyebrow{font:500 11px/1 "Roboto Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+  section{margin:0 0 46px}
+  h2{font-size:20px;font-weight:500;margin:0 0 6px;letter-spacing:-.01em}
+  .note{font-size:13.5px;color:var(--muted);margin:0 0 18px;max-width:760px}
+
+  /* model diagram */
+  .model{border:1px solid var(--border);border-radius:16px;padding:22px;text-align:center}
+  .claim{display:inline-block;border:1px solid var(--border);border-radius:13px;padding:12px 20px;font-weight:500;font-size:16px}
+  .claim small{display:block;font:500 10px/1.6 "Roboto Mono",monospace;letter-spacing:.12em;color:var(--coral-ink)}
+  .arrow{color:var(--muted);font-size:18px;line-height:1;margin:8px 0}
+  .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+  .box{flex:1 1 200px;max-width:230px;border:1px solid var(--border);border-radius:13px;padding:12px 14px;text-align:left}
+  .box b{display:block;font-weight:500;margin-bottom:2px}
+  .box span{font-size:12.5px;color:var(--muted)}
+  .door{border-color:var(--coral);background:var(--coral-bg)}
+  .list-band{margin-top:14px;background:#1f2733;color:#fff;border-radius:13px;padding:12px 16px;font-weight:500}
+  .list-band small{display:block;font-weight:400;font-size:12.5px;color:#c7ccd2}
+  .tag{display:inline-block;font:500 10px/1 "Roboto Mono",monospace;letter-spacing:.08em;padding:4px 8px;border-radius:999px;margin-right:4px}
+
+  /* journeys */
+  .j{border:1px solid var(--border);border-radius:16px;padding:18px 20px;margin-bottom:14px}
+  .j .who{font-weight:500;font-size:16px;margin:0 0 8px}
+  .awis{display:grid;grid-template-columns:96px 1fr;gap:4px 10px;font-size:14px;margin-bottom:12px}
+  .awis dt{font:500 10px/1.9 "Roboto Mono",monospace;letter-spacing:.1em;color:var(--coral-ink);text-transform:uppercase}
+  .awis dd{margin:0}
+  .steps{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12.5px}
+  .step{border:1px solid var(--border);border-radius:999px;padding:4px 11px;background:#fbfbfc}
+  .step.cap{border-color:var(--coral);background:var(--coral-bg);color:var(--coral-ink);font-weight:500}
+  .step.ext{border-style:dashed}
+  .sep{color:var(--muted)}
+  .phase{font:500 10px/1 "Roboto Mono",monospace;letter-spacing:.08em;color:var(--muted);margin-left:auto}
+
+  /* sitemap */
+  .map{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .pg{border:1px solid var(--border);border-radius:13px;padding:12px 14px}
+  .pg .path{font:500 12px "Roboto Mono",monospace;color:var(--coral-ink)}
+  .pg b{display:block;font-weight:500;margin:2px 0}
+  .pg span{font-size:12.5px;color:var(--muted)}
+  .pg.stage1{outline:2px solid var(--coral);outline-offset:-1px}
+  .legend{font-size:12px;color:var(--muted);margin-top:10px}
+  .legend i{display:inline-block;width:10px;height:10px;border:2px solid var(--coral);border-radius:3px;vertical-align:-1px;margin-right:5px}
+
+  /* wireframes */
+  .wires{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .wire{border:1px solid var(--border);border-radius:16px;overflow:hidden}
+  .wire .bar{background:#fbfbfc;border-bottom:1px solid var(--border);padding:8px 14px;font:500 11px "Roboto Mono",monospace;letter-spacing:.08em;color:var(--muted)}
+  .wire .bar b{color:var(--coral-ink)}
+  .sec{padding:9px 14px;border-bottom:1px solid var(--border);font-size:12.5px}
+  .sec:last-child{border-bottom:0}
+  .sec .lbl{font:500 9px/1.6 "Roboto Mono",monospace;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;display:block}
+  .sec.hl{background:var(--coral-bg)}
+  .sec.dark{background:#1f2733;color:#fff}
+  .sec.dark .lbl{color:#c7ccd2}
+
+  /* timeline */
+  .tl{border-left:2px solid var(--border);margin-left:8px;padding-left:20px}
+  .tli{position:relative;padding-bottom:16px}
+  .tli:before{content:"";position:absolute;left:-26px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--border)}
+  .tli.hot:before{background:var(--coral)}
+  .tli b{font-weight:500}
+  .tli .d{font:500 11px "Roboto Mono",monospace;color:var(--muted);letter-spacing:.06em}
+  .tli p{margin:2px 0 0;font-size:13.5px;color:var(--muted);max-width:640px}
+
+  /* metrics */
+  .mrow{display:flex;gap:12px;flex-wrap:wrap}
+  .m{flex:1 1 200px;border:1px solid var(--border);border-radius:13px;padding:14px 16px}
+  .m b{display:block;font-weight:500}
+  .m span{font-size:12.5px;color:var(--muted)}
+
+  /* Password gate */
+  #gate{
+    position:fixed; inset:0; background:#fff; z-index:1000;
+    display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px;
+    padding:24px; text-align:center;
+  }
+  #gate h2{margin:0; font-size:20px}
+  #gate p{color:var(--muted); font-size:13px; margin:0; max-width:320px}
+  #gate input{
+    background:#f7f7f9; border:1px solid var(--border); color:var(--ink);
+    padding:12px 16px; border-radius:8px; font-size:15px; width:220px; text-align:center;
+    letter-spacing:2px;
+  }
+  #gate input:focus{outline:none; border-color:var(--stretch)}
+  #gate button{
+    background:var(--coral); border:none; color:#fff; padding:12px 24px;
+    border-radius:8px; font-size:14px; cursor:pointer; font-weight:600;
+  }
+  #gate .err{color:var(--coral); font-size:12px; height:14px}
+  #content{display:none}
+</style>
+</head>
+<body>
+
+<div id="gate">
+  <h2>🔒 Private preview</h2>
+  <p>This is a temporary link. Enter the password to view.</p>
+  <input type="password" id="pw" placeholder="Password" autofocus>
+  <button onclick="checkPw()">Enter</button>
+  <div class="err" id="err"></div>
+</div>
+
+<div id="content"><div class="wrap">
+
+<p class="eyebrow">The Human Advantage · site vision · reads with the ruling board</p>
+<h1>Two doors, one shelf, one story, <em>one list</em>.</h1>
+<p class="sub">The whole strategy on one page: the model, the five user journeys, the site map, the page anatomies, the calendar it lands in, and how we'll know it works. 2026-08-10, Fable.</p>
+
+<!-- 1 THE MODEL -->
+<section>
+<h2>1 · The model</h2>
+<p class="note">Every visitor arrives mid-story, carrying a feeling they can't phrase yet: "my work is changing under me." The site's first move is recognition. The claim states the worldview; the question makes it personal; two doors let people name themselves in one sentence. Everything else is proof. Every path ends at the same single ask, because a list signup is the only conversion that compounds while you walk.</p>
+<div class="model">
+  <div class="claim">Every technology commoditizes. The human advantage doesn't.<small>WHAT'S YOUR HUMAN ADVANTAGE?</small></div>
+  <div class="arrow">↓</div>
+  <div class="row">
+    <div class="box door"><b>Door · Executives</b><span>"Your company is changing under you." → consigliere, receipts, form + tomas@tha.works</span></div>
+    <div class="box door"><b>Door · Professionals</b><span>"Your role is being rewritten. Hold the pen." → The Next You, coaching (opens late Oct)</span></div>
+  </div>
+  <div class="arrow">↓ proof, shown in place ↓</div>
+  <div class="row">
+    <div class="box"><b>The book</b><span>What Must Stay Human · Kindle from Aug 20 · ships with the skill</span></div>
+    <div class="box"><b>The Next You</b><span>free tool, 5 questions, nothing saved</span></div>
+    <div class="box"><b>The skills</b><span>The Last Decision + the free shelf, one file each</span></div>
+    <div class="box"><b>The journey</b><span>20 years → the turn → 1,000 km on foot, unreachable on purpose</span></div>
+  </div>
+  <div class="list-band">The field notes list — the one ask, on every page<small>"While I walk, this list is the only line either of us has." Serious intent: the form + tomas@tha.works. No calendar, no price, no fake scarcity — the Camino is the real scarcity.</small></div>
+</div>
+</section>
+
+<!-- 2 JOURNEYS -->
+<section>
+<h2>2 · The five user journeys</h2>
+<p class="note">Every page section must serve at least one step below — that's the acceptance lens for the build (board card R13). Coral chips are capture moments; dashed chips are off-site.</p>
+
+<div class="j">
+  <p class="who">J1 · The executive whose company is moving under him <span class="tag" style="background:var(--stretch-bg);color:var(--stretch)">MONEY PATH</span></p>
+  <dl class="awis">
+    <dt>As a</dt><dd>C-level or founder whose board wants an AI answer I don't privately have,</dd>
+    <dt>I want to</dt><dd>find a thinking partner who has actually run this at scale and won't sell me a deck,</dd>
+    <dt>So that I can</dt><dd>make the keep-vs-automate calls with someone on my side of the table, without announcing to anyone that I need help.</dd>
+  </dl>
+  <div class="steps"><span class="step ext">LinkedIn reveal / forwarded link</span><span class="sep">→</span><span class="step">/ home: recognizes himself in door 1</span><span class="sep">→</span><span class="step">/executives: offer + receipts + honest timeline</span><span class="sep">→</span><span class="step cap">form (topic: advisory) or tomas@tha.works</span><span class="sep">→</span><span class="step cap">field notes list</span><span class="sep">→</span><span class="step ext">late Oct: Tomás calls back — "the people who wrote first hear first"</span><span class="phase">PRE + DURING CAMINO</span></div>
+</div>
+
+<div class="j">
+  <p class="who">J2 · The executive who is privately behind <span class="tag" style="background:var(--stretch-bg);color:var(--stretch)">MONEY PATH</span></p>
+  <dl class="awis">
+    <dt>As a</dt><dd>senior leader who no longer understands half of what my own teams ship,</dd>
+    <dt>I want to</dt><dd>quietly gauge whether this person is credible and what working with him would even look like,</dd>
+    <dt>So that I can</dt><dd>reach out on my own terms, in private, without booking anything or exposing the gap.</dd>
+  </dl>
+  <div class="steps"><span class="step">/ home</span><span class="sep">→</span><span class="step">/about: the 20-year receipt wall</span><span class="sep">→</span><span class="step">/book: the argument, at depth</span><span class="sep">→</span><span class="step">/executives</span><span class="sep">→</span><span class="step cap">field notes list (watches from a distance first)</span><span class="sep">→</span><span class="step cap">email, weeks later</span><span class="phase">SLOW BURN · LIST DOES THE WORK</span></div>
+</div>
+
+<div class="j">
+  <p class="who">J3 · The professional rewriting her role <span class="tag" style="background:var(--keep-bg);color:var(--keep)">VOLUME PATH</span></p>
+  <dl class="awis">
+    <dt>As a</dt><dd>manager or senior IC watching execution get cheap under my job title,</dd>
+    <dt>I want to</dt><dd>put words to what's happening and draft the role I should be moving into,</dd>
+    <dt>So that I can</dt><dd>move first — and get coaching from someone who's guided this, when I'm ready.</dd>
+  </dl>
+  <div class="steps"><span class="step ext">LinkedIn post / referral / TNY link</span><span class="sep">→</span><span class="step">/professionals</span><span class="sep">→</span><span class="step ext">The Next You: 5 questions, role draft</span><span class="sep">→</span><span class="step">back: coaching opens late Oct</span><span class="sep">→</span><span class="step cap">field notes list — "first word and first access"</span><span class="sep">→</span><span class="step ext">Oct: coaching opens, list hears first</span><span class="phase">THE ORGANIC DEMAND, CONVERTED</span></div>
+</div>
+
+<div class="j">
+  <p class="who">J4 · The reader with the book in hand <span class="tag" style="background:var(--carry-bg);color:var(--carry)">PRINTED PROMISE</span></p>
+  <dl class="awis">
+    <dt>As a</dt><dd>reader who just typed tha.works/skill from the page in front of me,</dd>
+    <dt>I want to</dt><dd>get the one file the book promised, with zero friction and no account,</dd>
+    <dt>So that I can</dt><dd>run the Blast-Radius Gate on my own situation and say something out loud on Monday.</dd>
+  </dl>
+  <div class="steps"><span class="step ext">book, 9 printed pointers</span><span class="sep">→</span><span class="step">tha.works/skill → 302</span><span class="sep">→</span><span class="step hl">/skills: code STAYHUMAN (or take it anyway)</span><span class="sep">→</span><span class="step cap">download · paste · "run the gate"</span><span class="sep">→</span><span class="step">the shelf below · /</span><span class="sep">→</span><span class="step cap">field notes list</span><span class="phase">MUST WORK BY 08-13 · STAGE 1</span></div>
+</div>
+
+<div class="j">
+  <p class="who">J5 · The follower of the reveal <span class="tag" style="background:var(--frontier-bg);color:var(--frontier)">AUDIENCE ENGINE</span></p>
+  <dl class="awis">
+    <dt>As a</dt><dd>connection who watched the "I'm out" post and the Camino teaser,</dd>
+    <dt>I want to</dt><dd>understand what this new thing actually is and follow the walk,</dd>
+    <dt>So that I can</dt><dd>keep up while he's gone — and send this to the one person I know who needs it.</dd>
+  </dl>
+  <div class="steps"><span class="step ext">Spike posts 08-11 → 08-20</span><span class="sep">→</span><span class="step">/ home</span><span class="sep">→</span><span class="step">/about: the journey + why</span><span class="sep">→</span><span class="step cap">field notes list</span><span class="sep">→</span><span class="step ext">shares a door with a colleague → feeds J1–J3</span><span class="phase">SHAREABILITY = THE FLYWHEEL</span></div>
+</div>
+</section>
+
+<!-- 3 SITEMAP -->
+<section>
+<h2>3 · Site map + entry points</h2>
+<p class="note">Nine pages. Coral outline = Stage 1, live by 08-13 (the book's two printed promises). Everything else is Stage 2, live 08-18. Printed forever: the bare root and tha.works/skill.</p>
+<div class="map">
+  <div class="pg stage1"><span class="path">/</span><b>Home</b><span>claim → doors → shelf → story → list. Stage 1 ships hero + signup; Stage 2 completes it.</span></div>
+  <div class="pg stage1"><span class="path">/skills</span><b>The Last Decision + shelf</b><span>the 9× printed promise: code, one file, how-to. Shelf grows beneath in Stage 2.</span></div>
+  <div class="pg"><span class="path">/executives</span><b>The consigliere door</b><span>recognition → offer line → receipts → honest timeline → form + email</span></div>
+  <div class="pg"><span class="path">/professionals</span><b>The career door</b><span>recognition → TNY featured → coaching (late Oct) → book</span></div>
+  <div class="pg"><span class="path">/book</span><b>What Must Stay Human</b><span>argument → contents → who for → companion skill → buy state flips 08-20</span></div>
+  <div class="pg"><span class="path">/about</span><b>The journey</b><span>20 years → the turn → the Camino band → what's next</span></div>
+  <div class="pg"><span class="path">/contact</span><b>Two ways in</b><span>form + tomas@tha.works + the true timeline</span></div>
+  <div class="pg"><span class="path">/privacy</span><b>Plain-language privacy</b><span>forms, PostHog, removal by email</span></div>
+  <div class="pg stage1"><span class="path">404</span><b>Funnel, not dead end</b><span>routes back + signup block</span></div>
+</div>
+<p class="legend"><i></i>Stage 1 by 08-13 · Redirects: /toolkit + /resources → /skills · /advisory → /executives · stayhuman.works et al. 301 → root (live, preserved)</p>
+</section>
+
+<!-- 4 WIREFRAMES -->
+<section>
+<h2>4 · Page anatomy — the four that carry the strategy</h2>
+<p class="note">Section stacks with the real headlines from the vision doc. Coral = capture surface, dark = the one ask.</p>
+<div class="wires">
+  <div class="wire"><div class="bar"><b>/</b> · HOME</div>
+    <div class="sec"><span class="lbl">Hero</span>"Every technology commoditizes. The human advantage doesn't."</div>
+    <div class="sec"><span class="lbl">Doors · "What's your human advantage?"</span>"Your company is changing under you." · "Your role is being rewritten. Hold the pen."</div>
+    <div class="sec"><span class="lbl">The book — shown, never linked away</span>What Must Stay Human · Kindle Aug 20 · comes with the skill</div>
+    <div class="sec"><span class="lbl">Free tool</span>The Next You — "Your job description is out of date."</div>
+    <div class="sec"><span class="lbl">Free skills</span>"Pieces of my own operating system, free."</div>
+    <div class="sec"><span class="lbl">The journey</span>"On August 26 I start walking 1,000 km across Spain."</div>
+    <div class="sec dark"><span class="lbl">Field notes — the ask</span>"The only line either of us has." [email] [Sign me up]</div>
+  </div>
+  <div class="wire"><div class="bar"><b>/skills</b> · STAGE-1 HERO</div>
+    <div class="sec"><span class="lbl">Hero</span>"The Last Decision" — one file, runs the book's exercises, works anywhere you can paste instructions</div>
+    <div class="sec hl"><span class="lbl">Code — the primary object on the page</span>"Came from the book? Enter the code." [STAYHUMAN] · "No code? Take it anyway."</div>
+    <div class="sec"><span class="lbl">Download</span>"Download it once. Keep it." (.md everywhere · .skill for Claude)</div>
+    <div class="sec"><span class="lbl">How-to + the seven moves</span>download → paste → "run the Blast-Radius Gate"</div>
+    <div class="sec"><span class="lbl">Stage 2: the shelf</span>"More pieces, free." — computed from what's live, never hand-typed</div>
+    <div class="sec dark"><span class="lbl">Field notes</span>signup, source: signup:/skills</div>
+  </div>
+  <div class="wire"><div class="bar"><b>/executives</b> · THE MONEY DOOR</div>
+    <div class="sec"><span class="lbl">Recognition</span>"Your company is changing faster than anyone can brief you."</div>
+    <div class="sec"><span class="lbl">The offer — the one place it appears</span>"I help leaders and companies figure out what must stay human as AI eats execution." The consigliere framing.</div>
+    <div class="sec"><span class="lbl">Receipts</span>Netflix tiering · Booking crisis response · Miro CIO from scratch · 20 yrs / 5 countries / 6 companies / 2 founded</div>
+    <div class="sec"><span class="lbl">How it runs</span>"A small number of engagements, held close." No price, no calendar.</div>
+    <div class="sec hl"><span class="lbl">The honest timeline</span>"Unreachable until Oct 20, by design. The people who wrote first hear first."</div>
+    <div class="sec hl"><span class="lbl">Capture</span>"Tell me what's changing." form + tomas@tha.works</div>
+  </div>
+  <div class="wire"><div class="bar"><b>/professionals</b> · THE VOLUME DOOR</div>
+    <div class="sec"><span class="lbl">Recognition</span>"Rewrite your role before it gets rewritten for you."</div>
+    <div class="sec hl"><span class="lbl">The tool, featured</span>The Next You — 5 questions, 5 minutes, nothing saved → start</div>
+    <div class="sec"><span class="lbl">Coaching</span>"When the draft needs a sparring partner." Paid coaching opens late October — the list hears first.</div>
+    <div class="sec"><span class="lbl">The book</span>"The same argument, at full depth."</div>
+    <div class="sec dark"><span class="lbl">Field notes</span>signup, source: signup:/professionals</div>
+  </div>
+</div>
+</section>
+
+<!-- 5 TIMELINE -->
+<section>
+<h2>5 · The calendar it lands inside</h2>
+<div class="tl">
+  <div class="tli"><span class="d">MON 08-11</span> · <b>The reveal</b><p>Career move public. Traffic starts hitting the holding page.</p></div>
+  <div class="tli hot"><span class="d">THU 08-13</span> · <b>Stage 1 live</b><p>/skills + root signup. The book's two printed promises are true; KDP unblocks. Cover-vote post same day.</p></div>
+  <div class="tli"><span class="d">SUN ~08-16</span> · <b>Final cover lands</b><p>Drops into the pre-built slot, no layout change.</p></div>
+  <div class="tli hot"><span class="d">TUE 08-18</span> · <b>Stage 2 live — the full site</b><p>Teaser post: something lands Thursday.</p></div>
+  <div class="tli"><span class="d">~08-19</span> · <b>Book live on KDP</b></div>
+  <div class="tli"><span class="d">THU 08-20</span> · <b>Book announced</b><p>Tomás flips book.isLive + pastes the Amazon URL (one line + rebuild, rehearsed).</p></div>
+  <div class="tli hot"><span class="d">WED 08-26</span> · <b>Departure</b><p>Calendar closes. The site is the only salesperson for eight weeks. Scheduled posts + the list keep the flywheel turning.</p></div>
+  <div class="tli"><span class="d">TUE 10-20</span> · <b>Return</b><p>Advisory + coaching conversations open. The pipeline is whatever the two tables collected: brand_inbound rows by door, and the list.</p></div>
+</div>
+</section>
+
+<!-- 6 METRICS -->
+<section>
+<h2>6 · How we know it worked (three numbers per door)</h2>
+<div class="mrow">
+  <div class="m"><b>Door opened</b><span>PostHog: /executives and /professionals pageviews, door_opened events from home</span></div>
+  <div class="m"><b>Artifact used</b><span>tny_clicked · skill_downloaded · book_buy_clicked — proof the door was the right one</span></div>
+  <div class="m"><b>Joined the pipeline</b><span>brand_inbound rows: signup:&lt;door&gt; tags + contact-form topics. The number read on 10-20.</span></div>
+</div>
+<p class="note" style="margin-top:14px">If a door gets traffic and converts nothing, it's the wrong words on the door — known within weeks, fixable on return, measurable because every signup carries its door.</p>
+</section>
+
+<p class="eyebrow">Next: rule the board → strikes propagate to the vision doc → Stage-1 prompt runs today.</p>
+</div></div>
+
+<script>
+function checkPw(){
+  const val = document.getElementById('pw').value.trim().toUpperCase();
+  if(val === 'SAM'){
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('content').style.display = 'block';
+    sessionStorage.setItem('pos_unlocked', '1');
+  } else {
+    document.getElementById('err').textContent = 'Wrong password, try again.';
+  }
+}
+document.getElementById('pw').addEventListener('keydown', e => { if(e.key === 'Enter') checkPw(); });
+if(sessionStorage.getItem('pos_unlocked') === '1'){
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('content').style.display = 'block';
+}
+</script>
+
+</body>
+</html>
