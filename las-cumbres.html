@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Las Cumbres — propuesta</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --coral:#F0533B; --coral-ink:#C9381F; --coral-tint:#FFF1ED;
+  --ink:#0B0C0E; --body:#3F4448; --muted:#767C82;
+  --border:#E7E8EA; --border-strong:#D3D6D9; --bg:#FFFFFF; --recessed:#FBFBFC;
+  --font:'Roboto',system-ui,-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;
+  --mono:'Roboto Mono',ui-monospace,'SFMono-Regular',Menlo,Consolas,monospace;
+  --pad:22px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:var(--font);color:var(--body);background:var(--bg);
+  -webkit-font-smoothing:antialiased;font-size:17px;line-height:1.55}
+
+/* ── barra de progreso, para saber cuánto falta ── */
+.prog{position:fixed;top:0;left:0;height:3px;background:var(--coral);width:0;z-index:40;transition:width .1s linear}
+
+/* ── encabezado ── */
+header{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:saturate(180%) blur(12px);
+  border-bottom:1px solid var(--border);padding:calc(env(safe-area-inset-top) + 11px) var(--pad) 11px;
+  display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+header .school{font-size:17px;font-weight:500;color:var(--ink);letter-spacing:-.02em}
+.ml{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.11em;text-transform:uppercase;color:var(--muted)}
+.ml.coral{color:var(--coral-ink)}
+
+main{padding:0 var(--pad) 60px;max-width:640px;margin:0 auto}
+
+/* ── portada ── */
+.hero{padding:30px 0 4px}
+.hero .ml{display:block;margin-bottom:14px}
+h1{font-size:33px;line-height:1.1;font-weight:500;letter-spacing:-.032em;color:var(--ink);margin:0}
+.em{color:var(--coral)}
+.lede{font-size:18px;line-height:1.55;margin:18px 0 0}
+.readtime{margin-top:20px;font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--coral-ink);background:var(--coral-tint);border-radius:999px;padding:7px 13px;display:inline-block}
+
+hr{border:0;height:1px;background:var(--border);margin:32px 0}
+
+/* ── secciones ── */
+.sect{margin:34px 0 0}
+.sect .k{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--coral-ink)}
+.sect h2{font-size:24px;line-height:1.2;font-weight:500;letter-spacing:-.026em;color:var(--ink);margin:7px 0 0}
+.sect .s{font-size:16px;line-height:1.5;color:var(--muted);margin:7px 0 0}
+
+/* ── bloque con placa ── */
+.blk{margin-top:24px}
+.blk .head{display:flex;gap:13px;align-items:flex-start}
+.blk .head>div:last-child{padding-top:1px}
+.tile{flex:0 0 40px;height:40px;border-radius:12px;background:var(--coral-tint);display:flex;align-items:center;justify-content:center}
+.tile svg{width:20px;height:20px;stroke:var(--coral-ink);stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.blk .k{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--coral-ink)}
+.blk h3{font-size:19px;line-height:1.24;font-weight:500;letter-spacing:-.02em;color:var(--ink);margin:3px 0 0}
+.blk p{font-size:16.5px;line-height:1.55;margin:11px 0 0}
+.blk .m{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);margin-top:11px;line-height:1.7}
+
+/* ── lista etiquetada ── */
+.list{margin-top:20px;display:flex;flex-direction:column;gap:18px}
+.list .w{font-size:17px;font-weight:500;color:var(--ink);letter-spacing:-.015em}
+.list p{margin:4px 0 0;font-size:16.5px;line-height:1.5}
+
+/* ── pasos numerados ── */
+.steps{margin-top:20px;display:flex;flex-direction:column;gap:16px}
+.step{display:flex;gap:14px}
+.step .n{flex:0 0 24px;font-family:var(--mono);font-size:12px;font-weight:500;color:var(--coral-ink);padding-top:3px}
+.step .w{font-size:17px;font-weight:500;color:var(--ink);letter-spacing:-.015em}
+.step p{margin:3px 0 0;font-size:16.5px;line-height:1.5}
+
+.band{background:var(--coral-tint);border-radius:16px;padding:20px 22px;margin-top:26px;font-size:17px;line-height:1.55;color:var(--ink)}
+.quote{border-left:3px solid var(--coral);padding:2px 0 2px 18px;margin-top:30px;font-size:18.5px;line-height:1.5;color:var(--ink)}
+.close{font-size:22px;line-height:1.3;font-weight:500;letter-spacing:-.024em;color:var(--ink);margin-top:34px}
+
+footer{border-top:1px solid var(--border);margin-top:40px;padding:22px 0 calc(env(safe-area-inset-bottom) + 10px)}
+footer .ml{display:block;line-height:1.7}
+
+/* ── escritorio: la misma lectura, con más aire ── */
+@media (min-width:760px){
+  :root{--pad:40px}
+  body{font-size:18px}
+  main{max-width:700px;padding-bottom:90px}
+  h1{font-size:46px}
+  .hero{padding:56px 0 4px}
+  .sect h2{font-size:28px}
+  hr{margin:44px 0}
+}
+@media print{
+  header{position:static;background:#fff;backdrop-filter:none}
+  .prog,.readtime{display:none}
+  main{max-width:none}
+}
+
+/* ── puerta de acceso (cortesía, no seguridad) ── */
+#gate{position:fixed;inset:0;z-index:100;background:#fff;display:flex;align-items:center;justify-content:center;padding:24px}
+#gate .box{width:100%;max-width:340px;text-align:left}
+#gate .k{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--coral-ink)}
+#gate h1{font-size:27px;line-height:1.18;font-weight:500;letter-spacing:-.028em;color:var(--ink);margin:10px 0 0}
+#gate p{font-size:16px;line-height:1.5;color:var(--muted);margin:10px 0 0}
+#gate .f{display:flex;gap:9px;margin-top:22px}
+#gate input{flex:1;min-width:0;font-family:var(--font);font-size:17px;color:var(--ink);background:#fff;
+  border:1px solid var(--border-strong);border-radius:13px;padding:14px 15px;letter-spacing:.06em}
+#gate input:focus{outline:none;border-color:var(--coral)}
+#gate button{font-family:var(--font);font-size:16px;font-weight:500;color:#fff;background:var(--ink);
+  border:0;border-radius:13px;padding:14px 20px;cursor:pointer}
+#gate .err{font-size:14.5px;color:var(--coral-ink);margin-top:12px;min-height:20px}
+body.locked{overflow:hidden}
+body.locked main,body.locked header,body.locked .prog{visibility:hidden}
+</style>
+</head>
+<body>
+
+
+<div id="gate">
+  <div class="box">
+    <div class="k">Las Cumbres &middot; propuesta</div>
+    <h1>Documento privado</h1>
+    <p>Escrib&iacute; la clave para leerlo.</p>
+    <form class="f" id="gform" autocomplete="off">
+      <input id="gpass" type="password" inputmode="text" autocapitalize="characters"
+             autocorrect="off" spellcheck="false" aria-label="clave" placeholder="clave">
+      <button type="submit">Entrar</button>
+    </form>
+    <div class="err" id="gerr"></div>
+  </div>
+</div>
+
+<div class="prog" id="prog"></div>
+
+<header>
+  <span class="school">Las Cumbres</span>
+  <span class="ml">propuesta &middot; 4&deg; y 5&deg; a&ntilde;o</span>
+</header>
+
+<main>
+
+  <section class="hero">
+    <span class="ml coral">programa insignia &middot; extracurricular</span>
+    <h1>La inteligencia artificial cambia <span class="em">m&aacute;s r&aacute;pido que cualquier sistema educativo</span>.</h1>
+    <p class="lede">Preparemos a nuestros alumnos para un futuro donde la &uacute;nica constante va a ser el cambio. Eligen una carrera que se va a transformar mientras la estudian, y este curso entrena lo que no caduca: encuadrar un problema, juzgar una respuesta y sostener una decisi&oacute;n.</p>
+    <span class="readtime">4 minutos de lectura</span>
+  </section>
+
+  <hr>
+
+  <section class="sect">
+    <div class="k">por qu&eacute; ahora</div>
+    <h2>Tres cosas que ya est&aacute;n pasando</h2>
+    <div class="s">Una que nos obliga a movernos, una que nos dice hacia d&oacute;nde, y una que todav&iacute;a nadie ocup&oacute;.</div>
+  </section>
+
+  <div class="blk">
+    <div class="head">
+      <div class="tile"><svg viewBox="0 0 24 24"><path d="M3 17h6l4-9 3 5h5"/><path d="M17 4l3 3-3 3"/></svg></div>
+      <div><div class="k">problema</div><h3>Todas las carreras se est&aacute;n moviendo al mismo tiempo</h3></div>
+    </div>
+    <p>Medicina, derecho, finanzas o ingenier&iacute;a: la inteligencia artificial ya cambia c&oacute;mo se ejerce cada una, y los planes de estudio van por detr&aacute;s. ABET, que acredita ingenier&iacute;a en Estados Unidos, puso sus criterios de IA a revisi&oacute;n en octubre de 2025 y reci&eacute;n se aplican en 2027-28. Lo que no se mueve es lo que sostiene cualquier profesi&oacute;n: agilidad cognitiva, criterio y pensamiento cr&iacute;tico.</p>
+  </div>
+
+  <div class="blk">
+    <div class="head">
+      <div class="tile"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>
+      <div><div class="k">destino</div><h3>Las empresas que van a contratarlos ya seleccionan por criterio</h3></div>
+    </div>
+    <p>Las dos publican qu&eacute; eval&uacute;an cuando contratan. El primer valor de Netflix se llama <i>Judgment</i>, criterio: decisiones acertadas incluso cuando la situaci&oacute;n es ambigua. Google entrevista con problemas hipot&eacute;ticos, para ver c&oacute;mo razona alguien frente a algo que nunca enfrent&oacute;.</p>
+  </div>
+
+  <div class="blk">
+    <div class="head">
+      <div class="tile"><svg viewBox="0 0 24 24"><path d="M6 21V4"/><path d="M6 4h11l-2.5 4L17 12H6"/></svg></div>
+      <div><div class="k">oportunidad</div><h3>Tenemos la oportunidad de liderar la transformaci&oacute;n del sistema educativo</h3></div>
+    </div>
+    <p>Hay colegios que ense&ntilde;an tecnolog&iacute;a y colegios que ense&ntilde;an inteligencia artificial. Preparar al alumno para sostener su carrera mientras cambia todav&iacute;a no lo hace nadie, y esa posici&oacute;n hoy est&aacute; libre.</p>
+  </div>
+
+  <hr>
+
+  <section class="sect">
+    <div class="k">la propuesta</div>
+    <h2>Qu&eacute; recibe Las Cumbres</h2>
+  </section>
+
+  <div class="list">
+    <div><div class="w">Un programa hecho a medida</div><p>Escrito sobre los valores y la forma de ense&ntilde;ar de la casa.</p></div>
+    <div><div class="w">Una posici&oacute;n que hoy nadie ocupa</div><p>El colegio que se adelant&oacute;, y que puede decirlo primero.</p></div>
+    <div><div class="w">Un proyecto final que se defiende en p&uacute;blico</div><p>Ante padres y docentes, cada alumno defiende su tesis.</p></div>
+    <div><div class="w">Evidencia que se puede mostrar</div><p>El mismo diagn&oacute;stico al principio y al final del curso.</p></div>
+  </div>
+
+  <hr>
+
+  <section class="sect">
+    <div class="k">tres lecturas</div>
+    <h2>Qu&eacute; significa para cada uno</h2>
+  </section>
+
+  <div class="list">
+    <div><div class="w">Direcci&oacute;n</div><p>Las Cumbres como referencia. Es una posici&oacute;n que hoy est&aacute; libre y que despu&eacute;s se cita sola.</p></div>
+    <div><div class="w">Padres</div><p>Que sus hijos tengan las herramientas para navegar un mercado laboral que se est&aacute; reacomodando, elijan la carrera que elijan.</p></div>
+    <div><div class="w">Alumnos</div><p>Elegir con menos ruido. Cualquier carrera que elijan, la eligen mejor, y con menos preocupaci&oacute;n por su futuro laboral.</p></div>
+  </div>
+
+  <div class="band">Extracurricular, con una camada piloto. Suplementario a computaci&oacute;n y tecnolog&iacute;a, que ense&ntilde;an lo que existe hoy. Este curso ense&ntilde;a recursos para adaptarse a los cambios de ma&ntilde;ana.</div>
+
+  <div class="close">Quien lo haga primero <span class="em">va a ser la referencia</span>. Las Cumbres tiene los alumnos y el nivel para serlo.</div>
+
+  <hr>
+
+  <section class="sect">
+    <div class="k">c&oacute;mo funciona</div>
+    <h2>Tres capacidades <span class="em">que no caducan</span></h2>
+    <div class="s">Cambia la herramienta, cambia la carrera, cambia el mercado. Lo que se entrena ac&aacute; sigue sirviendo igual.</div>
+  </section>
+
+  <div class="blk">
+    <div class="head">
+      <div class="tile"><svg viewBox="0 0 24 24"><path d="M4 9V4h5"/><path d="M20 9V4h-5"/><path d="M4 15v5h5"/><path d="M20 15v5h-5"/></svg></div>
+      <div><h3>Encuadrar</h3></div>
+    </div>
+    <p>Sabe cu&aacute;l es la pregunta real antes de que alguien la conteste.</p>
+    <div class="m">primeros principios &middot; reformular el problema &middot; pensamiento lateral &middot; inversi&oacute;n</div>
+  </div>
+
+  <div class="blk">
+    <div class="head">
+      <div class="tile"><svg viewBox="0 0 24 24"><path d="M12 4v16"/><path d="M5 8h14"/><path d="M5 8l-2.5 6h5z"/><path d="M19 8l-2.5 6h5z"/></svg></div>
+      <div><h3>Juzgar</h3></div>
+    </div>
+    <p>Distingue una buena respuesta de una que solamente suena bien.</p>
+    <div class="m">pensamiento cr&iacute;tico &middot; calidad de la evidencia &middot; c&oacute;mo se verifica lo que devuelve la ia</div>
+  </div>
+
+  <div class="blk">
+    <div class="head">
+      <div class="tile"><svg viewBox="0 0 24 24"><path d="M5 20V6"/><path d="M3 20h9"/><path d="M21 13h-9"/><path d="M15 9l-3 4 3 4"/></svg></div>
+      <div><h3>Responder</h3></div>
+    </div>
+    <p>Decide, se hace cargo, y lo defiende de pie.</p>
+    <div class="m">costo de oportunidad &middot; decisiones reversibles &middot; c&oacute;mo entrevistan google y netflix</div>
+  </div>
+
+  <div class="band">Las tres entrenan lo mismo: c&oacute;mo decide una persona cuando la tecnolog&iacute;a le cambia el piso. Es la parte que ninguna herramienta hace por ellos, y la que ning&uacute;n plan de estudios llega a actualizar a tiempo.</div>
+
+  <hr>
+
+  <section class="sect">
+    <div class="k">el ritual</div>
+    <h2>Los cinco tiempos de cada encuentro</h2>
+    <div class="s">Siempre los mismos. Por eso Las Cumbres lo puede volver a dictar sin redise&ntilde;arlo.</div>
+  </section>
+
+  <div class="steps">
+    <div class="step"><div class="n">01</div><div><div class="w">Provocaci&oacute;n</div><p>Un caso real o una afirmaci&oacute;n fuerte que parte el aula al medio.</p></div></div>
+    <div class="step"><div class="n">02</div><div><div class="w">Concepto</div><p>Una sola idea del d&iacute;a, con nombre y definici&oacute;n. Una, no cinco.</p></div></div>
+    <div class="step"><div class="n">03</div><div><div class="w">Laboratorio</div><p>La aplican sobre la carrera que cada uno eligi&oacute;, no sobre un ejemplo de manual.</p></div></div>
+    <div class="step"><div class="n">04</div><div><div class="w">Veredicto</div><p>Debaten, y cada uno sostiene una posici&oacute;n en voz alta y banca la repregunta.</p></div></div>
+    <div class="step"><div class="n">05</div><div><div class="w">Tarea opcional</div><p>Algo concreto para probar antes del pr&oacute;ximo encuentro.</p></div></div>
+  </div>
+
+  <section class="sect">
+    <div class="k">las tres decisiones</div>
+    <h2>Qu&eacute; hace que el ritual funcione</h2>
+    <div class="s">Sobre qu&eacute; corre el curso, c&oacute;mo se comporta el aula, y c&oacute;mo se mide.</div>
+  </section>
+
+  <div class="list">
+    <div><div class="w">El caso</div><p>La propia carrera de cada alumno. En el primer encuentro dice qu&eacute; va a estudiar, y esa respuesta atraviesa todo el curso.</p></div>
+    <div><div class="w">La regla</div><p>El aula audita, no consume. La inteligencia artificial entrega una respuesta y el aula la revisa: d&oacute;nde acierta, d&oacute;nde falla, y c&oacute;mo se dieron cuenta. Eso es pensamiento cr&iacute;tico aplicado.</p></div>
+    <div><div class="w">La evidencia</div><p>El mismo diagn&oacute;stico al principio y al final, corregido contra una r&uacute;brica escrita que queda en Las Cumbres.</p></div>
+  </div>
+
+  <hr>
+
+  <section class="sect">
+    <div class="k">durabilidad</div>
+    <h2>Por qu&eacute; sigue sirviendo dentro de cinco a&ntilde;os</h2>
+  </section>
+
+  <div class="list">
+    <div><div class="w">No se ata a una tecnolog&iacute;a</div><p>Lo que se entrena es c&oacute;mo se piensa. Cambia la herramienta y el m&eacute;todo sigue en pie.</p></div>
+    <div><div class="w">Sirve en cualquier carrera</div><p>Medicina, derecho, m&uacute;sica o ingenier&iacute;a hacen el mismo encuentro sobre casos distintos.</p></div>
+    <div><div class="w">Queda instalado en la casa</div><p>El formato es siempre el mismo, as&iacute; que Las Cumbres lo vuelve a dictar el a&ntilde;o que viene sin redise&ntilde;arlo.</p></div>
+  </div>
+
+  <div class="quote">&laquo;La carrera que empiezo se va a transformar mientras la estudio. Esta es mi tesis sobre c&oacute;mo va a cambiar, en qu&eacute; me apoyo para decirlo, y qu&eacute; voy a hacer al respecto desde ahora.&raquo;</div>
+
+  <footer>
+    <span class="ml">propuesta preparada por Tom&aacute;s Dostal Freire y Eduardo Dostal Freire</span>
+  </footer>
+
+</main>
+
+<script>
+(function(){
+  var p=document.getElementById("prog");
+  function tick(){
+    var h=document.documentElement.scrollHeight-window.innerHeight;
+    p.style.width=(h>0?Math.min(100,(window.scrollY/h)*100):0)+"%";
+  }
+  window.addEventListener("scroll",tick,{passive:true});
+  window.addEventListener("resize",tick); tick();
+})();
+</script>
+
+<script>
+(function(){
+  var H="aa09481cf2ae5fe2df8bb2636c02c34327d3c66b51c7c84e38529df6ec55cde9";
+  var K="lc-ok", gate=document.getElementById("gate"), err=document.getElementById("gerr");
+  function unlock(){ try{sessionStorage.setItem(K,"1");}catch(e){}
+    gate.remove(); document.body.classList.remove("locked"); window.dispatchEvent(new Event("resize")); }
+  var ok=false; try{ ok = sessionStorage.getItem(K)==="1"; }catch(e){}
+  if(ok){ unlock(); return; }
+  document.body.classList.add("locked");
+  async function sha(s){
+    if(window.crypto && crypto.subtle){
+      var b=await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s));
+      return [].map.call(new Uint8Array(b),function(x){return x.toString(16).padStart(2,"0");}).join("");
+    }
+    return null;
+  }
+  document.getElementById("gform").addEventListener("submit", async function(e){
+    e.preventDefault();
+    var v=(document.getElementById("gpass").value||"").trim().toUpperCase();
+    var h=await sha(v);
+    if(h===H || (h===null && v==="EDU")) unlock();
+    else { err.textContent="Esa no es. Prob\u00e1 de nuevo."; document.getElementById("gpass").select(); }
+  });
+  setTimeout(function(){ document.getElementById("gpass").focus(); },120);
+})();
+</script>
+</body>
+</html>
