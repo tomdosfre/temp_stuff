@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Edu cumple 65</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎂</text></svg>">
 <!--OG-->
 <meta property="og:title" content="Edu cumple 65 🎉">
 <meta property="og:description" content="Cuenta regresiva al 2 de noviembre · Una foto cada día">
@@ -37,7 +38,10 @@
   .bar i { display:block; height:100%; background:linear-gradient(90deg,#2f5cf0,#38a0f0 70%,var(--orange)); border-radius:99px; }
   .photo { flex:0 1 auto; min-height:0; display:flex; justify-content:center; }
   .note { flex:none; background:var(--card); border-radius:14px; padding:12px 14px; font-size:15px; line-height:1.4; text-align:center; box-shadow:0 2px 10px rgba(15,23,42,.06); }
-  .note i { font-style:normal; font-weight:700; color:var(--blue); }
+  .note i { font-style:normal; font-weight:700; color:var(--blue); display:inline-block; transition:filter .3s; }
+  .note.hide i { filter:blur(6px); }
+  .note.hide::after { content:'👆 Tocá para ver el remate'; display:block; font-size:11px; color:var(--muted); margin-top:4px; }
+  .note { cursor:pointer; -webkit-tap-highlight-color:transparent; }
   .note b { display:block; font-size:10px; letter-spacing:.14em; color:var(--blue); margin-bottom:4px; }
   .note:empty { display:none; }
   .photo img { max-width:100%; max-height:100%; width:auto; height:auto; display:block; border-radius:18px; box-shadow:0 8px 28px rgba(15,23,42,.18); }
@@ -79,7 +83,7 @@ function setPhoto() {
   if (key < '10-10' || key > '11-02') key = key > '11-02' && key < '12-31' ? '11-02' : '10-10';
   const src = 'fotos/' + key + '.jpg';
   if (img.dataset.want === key) return;
-  img.dataset.want = key; note.innerHTML = NOTES[key] || ''; img.src = src;
+  img.dataset.want = key; note.innerHTML = NOTES[key] || ''; note.classList.toggle('hide', !!note.querySelector('i')); img.src = src;
 }
 function tick() {
   const now = Date.now(), left = END - now;
@@ -112,6 +116,7 @@ function confetti() {
   })();
 }
 conf.onclick = confetti;
+note.onclick = () => { if (note.classList.contains('hide')) { note.classList.remove('hide'); confetti(); } };
 img.onerror = () => { if (!img.src.endsWith('11-01.jpg')) { img.src = 'fotos/11-01.jpg'; } };
 </script>
 </body>
