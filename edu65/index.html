@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Edu cumple 65</title>
+<!--OG-->
+<meta property="og:title" content="Edu cumple 65 🎉">
+<meta property="og:description" content="Cuenta regresiva al 2 de noviembre · Una foto cada día">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://tomdosfre.github.io/temp_stuff/edu65/fotos/10-10.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<!--/OG-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800;900&display=swap" rel="stylesheet">
+<style>
+  :root { --ink:#0f172a; --muted:#64748b; --blue:#2b7fd6; --orange:#f59e0b; --bg:#f5f7fb; --card:#fff; --line:#e5e9f0; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; overflow:hidden; background:var(--bg); color:var(--ink); font-family:Inter, system-ui, sans-serif; }
+  body { display:flex; flex-direction:column; height:100dvh; padding:max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom)); gap:12px; }
+  header { text-align:center; flex:none; }
+  .kicker { font-size:11px; font-weight:800; letter-spacing:.14em; color:var(--blue); text-transform:uppercase; }
+  .kicker span { color:var(--muted); letter-spacing:0; text-transform:none; font-weight:600; }
+  h1 { font-size:clamp(34px, 11vw, 64px); font-weight:900; letter-spacing:-.04em; line-height:1.05; margin-top:6px; }
+  .badge { display:inline-block; background:linear-gradient(135deg,#38a0f0,#2f5cf0); color:#fff; padding:0 .22em; border-radius:.2em; transform:rotate(-3deg); box-shadow:0 6px 18px rgba(47,92,240,.3); }
+  .sub { font-size:13px; color:var(--muted); margin-top:6px; }
+  .tiles { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; flex:none; }
+  .tile { background:var(--card); border-radius:14px; padding:10px 4px 8px; text-align:center; box-shadow:0 2px 10px rgba(15,23,42,.06); }
+  .num { font:700 clamp(24px,8vw,40px)/1 ui-monospace, SFMono-Regular, Menlo, monospace; }
+  .tile:first-child .num { color:var(--blue); }
+  .tile:last-child .num { color:var(--orange); }
+  .lbl { font-size:10px; font-weight:700; letter-spacing:.1em; color:var(--muted); margin-top:4px; }
+  .prog { flex:none; }
+  .row { display:flex; justify-content:space-between; align-items:center; font-size:11px; font-weight:600; color:var(--muted); }
+  .row button { border:0; background:none; font:inherit; font-weight:700; color:var(--blue); cursor:pointer; padding:4px; }
+  .bar { height:6px; background:var(--line); border-radius:99px; margin-top:4px; overflow:hidden; }
+  .bar i { display:block; height:100%; background:linear-gradient(90deg,#2f5cf0,#38a0f0 70%,var(--orange)); border-radius:99px; }
+  .photo { flex:1; min-height:0; position:relative; border-radius:18px; overflow:hidden; background:#dfe5ee; box-shadow:0 4px 20px rgba(15,23,42,.1); }
+  .photo .blur { position:absolute; inset:-20px; background-size:cover; background-position:center; filter:blur(24px) saturate(1.1); opacity:.7; }
+  .photo img { position:relative; width:100%; height:100%; object-fit:contain; display:block; }
+  body.bday .tiles, body.bday .prog { display:none; }
+  canvas { position:fixed; inset:0; pointer-events:none; z-index:9; }
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">Cuenta regresiva oficial <span>· 2 de noviembre</span></div>
+  <h1 id="title">Edu cumple <span class="badge">65</span></h1>
+  <div class="sub" id="sub">Una foto distinta cada día</div>
+</header>
+<section class="tiles">
+  <div class="tile"><div class="num" id="d">--</div><div class="lbl">DÍAS</div></div>
+  <div class="tile"><div class="num" id="h">--</div><div class="lbl">HORAS</div></div>
+  <div class="tile"><div class="num" id="m">--</div><div class="lbl">MIN</div></div>
+  <div class="tile"><div class="num" id="s">--</div><div class="lbl">SEG</div></div>
+</section>
+<section class="prog">
+  <div class="row"><span>10 de octubre</span><button id="conf">🎉 ¡Tirar papelitos!</button><span>2 de nov (65)</span></div>
+  <div class="bar"><i id="bar" style="width:0"></i></div>
+</section>
+<figure class="photo"><div class="blur" id="blur"></div><img id="img" alt="Foto del día"></figure>
+<canvas id="cv"></canvas>
+<script>
+const TZ = 'America/Argentina/Buenos_Aires';
+const START = Date.parse('2026-10-10T00:00:00-03:00');
+const END = Date.parse('2026-11-02T00:00:00-03:00');
+const pad = n => String(n).padStart(2, '0');
+function arDay() {
+  const p = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+  return p.find(x => x.type === 'month').value + '-' + p.find(x => x.type === 'day').value;
+}
+function setPhoto() {
+  let key = arDay();
+  if (key < '10-10' || key > '11-02') key = key > '11-02' && key < '12-31' ? '11-02' : '10-10';
+  const src = 'fotos/' + key + '.jpg';
+  if (img.dataset.want === key) return;
+  img.dataset.want = key; img.src = src; blur.style.backgroundImage = `url(${src})`;
+}
+function tick() {
+  const now = Date.now(), left = END - now;
+  if (left <= 0) {
+    document.body.classList.add('bday');
+    title.innerHTML = '¡Feliz cumple, Edu! <span class="badge">65</span>';
+    sub.textContent = '2 de noviembre de 2026';
+    if (!tick.done) { tick.done = 1; confetti(); }
+  } else {
+    const t = Math.floor(left / 1000);
+    d.textContent = pad(Math.floor(t / 86400));
+    h.textContent = pad(Math.floor(t % 86400 / 3600));
+    m.textContent = pad(Math.floor(t % 3600 / 60));
+    s.textContent = pad(t % 60);
+    bar.style.width = Math.min(100, Math.max(2, (now - START) / (END - START) * 100)) + '%';
+  }
+  setPhoto();
+}
+tick(); setInterval(tick, 1000);
+
+function confetti() {
+  const c = cv, x = c.getContext('2d'), W = c.width = innerWidth, H = c.height = innerHeight;
+  const cols = ['#2f5cf0', '#38a0f0', '#f59e0b', '#ef4444', '#10b981', '#ec4899'];
+  const ps = Array.from({ length: 160 }, () => ({ x: W / 2, y: H * .35, vx: (Math.random() - .5) * 14, vy: -Math.random() * 14 - 4, r: Math.random() * 6 + 4, c: cols[Math.random() * cols.length | 0], a: Math.random() * 6, va: (Math.random() - .5) * .3 }));
+  let f = 0;
+  (function loop() {
+    x.clearRect(0, 0, W, H);
+    ps.forEach(p => { p.vy += .35; p.vx *= .99; p.x += p.vx; p.y += p.vy; p.a += p.va; x.save(); x.translate(p.x, p.y); x.rotate(p.a); x.fillStyle = p.c; x.fillRect(-p.r / 2, -p.r / 4, p.r, p.r / 2); x.restore(); });
+    if (++f < 200) requestAnimationFrame(loop); else x.clearRect(0, 0, W, H);
+  })();
+}
+conf.onclick = confetti;
+img.onerror = () => { if (!img.src.endsWith('11-01.jpg')) { img.src = 'fotos/11-01.jpg'; blur.style.backgroundImage = 'url(fotos/11-01.jpg)'; } };
+</script>
+</body>
+</html>
