@@ -35,7 +35,10 @@
   .row button { border:0; background:none; font:inherit; font-weight:700; color:var(--blue); cursor:pointer; padding:4px; }
   .bar { height:6px; background:var(--line); border-radius:99px; margin-top:4px; overflow:hidden; }
   .bar i { display:block; height:100%; background:linear-gradient(90deg,#2f5cf0,#38a0f0 70%,var(--orange)); border-radius:99px; }
-  .photo { flex:1; min-height:0; display:flex; align-items:center; justify-content:center; }
+  .photo { flex:0 1 auto; min-height:0; display:flex; justify-content:center; }
+  .note { flex:none; background:var(--card); border-radius:14px; padding:12px 14px; font-size:15px; line-height:1.4; text-align:center; box-shadow:0 2px 10px rgba(15,23,42,.06); }
+  .note b { display:block; font-size:10px; letter-spacing:.14em; color:var(--blue); margin-bottom:4px; }
+  .note:empty { display:none; }
   .photo img { max-width:100%; max-height:100%; width:auto; height:auto; display:block; border-radius:18px; box-shadow:0 8px 28px rgba(15,23,42,.18); }
   body.bday .tiles, body.bday .prog { display:none; }
   canvas { position:fixed; inset:0; pointer-events:none; z-index:9; }
@@ -58,11 +61,13 @@
   <div class="bar"><i id="bar" style="width:0"></i></div>
 </section>
 <figure class="photo"><img id="img" alt="Foto del día"></figure>
+<div class="note" id="note"></div>
 <canvas id="cv"></canvas>
 <script>
 const TZ = 'America/Argentina/Buenos_Aires';
 const START = Date.parse('2026-10-10T00:00:00-03:00');
 const END = Date.parse('2026-11-02T00:00:00-03:00');
+const NOTES = {};
 const pad = n => String(n).padStart(2, '0');
 function arDay() {
   const p = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, month: '2-digit', day: '2-digit' }).formatToParts(new Date());
@@ -73,7 +78,7 @@ function setPhoto() {
   if (key < '10-10' || key > '11-02') key = key > '11-02' && key < '12-31' ? '11-02' : '10-10';
   const src = 'fotos/' + key + '.jpg';
   if (img.dataset.want === key) return;
-  img.dataset.want = key; img.src = src;
+  img.dataset.want = key; note.innerHTML = NOTES[key] || ''; img.src = src;
 }
 function tick() {
   const now = Date.now(), left = END - now;
