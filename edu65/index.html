@@ -67,7 +67,7 @@
 const TZ = 'America/Argentina/Buenos_Aires';
 const START = Date.parse('2026-10-10T00:00:00-03:00');
 const END = Date.parse('2026-11-02T00:00:00-03:00');
-const NOTES = {};
+const NOTES = {"10-10": "Los 260 habitantes de Tristán da Cunha, una isla perdida en el Atlántico Sur, escaparon de un volcán en dos botes pesqueros.", "10-11": "Abría en Nueva Jersey el primer shopping techado al este del Mississippi. Las compras nunca volvieron a ser iguales.", "10-12": "Debutaba en Estados Unidos la Liga Nacional de Bowling. Duró menos de un año.", "10-13": "La NASA aprobaba construir su centro de Houston. Sí, el de «Houston, tenemos un problema».", "10-14": "Se estrenaba en Broadway «Cómo triunfar en los negocios sin realmente intentarlo». Hizo 1.417 funciones.", "10-15": "Racing empataba 1–1 con Chacarita, camino al título de campeón de 1961.", "10-16": "Se publicaba el libro de cocina de Julia Child que convirtió a millones en chefs (o al menos en entusiastas).", "10-17": "Mick Jagger y Keith Richards se reencontraban por casualidad en una estación de tren. Así empezaron los Rolling Stones.", "10-18": "Se estrenaba «West Side Story» en Nueva York. Ganaría 10 Oscars y haría bailar a medio mundo.", "10-19": "Los últimos soldados británicos dejaban Kuwait.", "10-20": "Los isleños de Tristán da Cunha zarpaban en barco de Sudáfrica a Inglaterra. Viajeros de ley.", "10-21": "Estados Unidos intentó poner 480 millones de agujitas de cobre en órbita para mejorar las comunicaciones. No se desplegaron.", "10-22": "Racing le ganaba 5–0 a Lanús en el Cilindro, y Chubby Checker ponía a bailar el Twist a todo Estados Unidos.", "10-23": "La cápsula Freedom 7, la primera en llevar un astronauta estadounidense al espacio, pasaba a ser pieza de museo.", "10-24": "En Londres pedían salvar el antiguo Arco de Euston. No hubo caso: lo demolieron dos meses después.", "10-25": "Nacía Chad Smith, el baterista de los Red Hot Chili Peppers.", "10-26": "Nacía Uhuru Kenyatta, que con los años sería presidente de Kenia.", "10-27": "Se jugaba el primer partido de la liga ABL, la primera en usar el triple. Y despegaba por primera vez el cohete Saturn I, el de la Luna.", "10-28": "Los tanques estadounidenses y soviéticos se retiraban del Checkpoint Charlie. Berlín respiraba aliviada.", "10-29": "Racing sacaba un 1–1 en el Monumental contra River, camino al título.", "10-30": "La Unión Soviética detonaba la Bomba del Zar, la explosión más grande hecha por el hombre.", "10-31": "Nacían Peter Jackson, el director de «El Señor de los Anillos», y Larry Mullen Jr., el baterista de U2.", "11-01": "El mundo se preparaba para recibir a Edu. Por las dudas, Racing le ganaba 2–0 a Atlanta."};
 const pad = n => String(n).padStart(2, '0');
 function arDay() {
   const p = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, month: '2-digit', day: '2-digit' }).formatToParts(new Date());
@@ -78,7 +78,7 @@ function setPhoto() {
   if (key < '10-10' || key > '11-02') key = key > '11-02' && key < '12-31' ? '11-02' : '10-10';
   const src = 'fotos/' + key + '.jpg';
   if (img.dataset.want === key) return;
-  img.dataset.want = key; note.innerHTML = NOTES[key] || ''; img.src = src;
+  img.dataset.want = key; note.innerHTML = NOTES[key] ? '<b>UN DÍA COMO HOY, EN 1961…</b>' + NOTES[key] : ''; img.src = src;
 }
 function tick() {
   const now = Date.now(), left = END - now;
