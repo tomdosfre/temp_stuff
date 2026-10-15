@@ -46,6 +46,7 @@
   .note:empty { display:none; }
   .photo img { max-width:100%; max-height:100%; width:auto; height:auto; display:block; border-radius:18px; box-shadow:0 8px 28px rgba(15,23,42,.18); }
   body.bday .tiles, body.bday .prog { display:none; }
+  .wa { flex:none; align-self:center; display:inline-flex; align-items:center; gap:6px; background:#25d366; color:#fff; font-size:13px; font-weight:700; text-decoration:none; padding:8px 16px; border-radius:99px; box-shadow:0 2px 10px rgba(37,211,102,.35); }
   canvas { position:fixed; inset:0; pointer-events:none; z-index:9; }
 </style>
 </head>
@@ -67,6 +68,7 @@
 </section>
 <figure class="photo"><img id="img" alt="Foto del día"></figure>
 <div class="note" id="note"></div>
+<a class="wa" id="wa" target="_blank" rel="noopener">💬 Compartir por WhatsApp</a>
 <canvas id="cv"></canvas>
 <script>
 const TZ = 'America/Argentina/Buenos_Aires';
@@ -116,6 +118,7 @@ function confetti() {
   })();
 }
 conf.onclick = confetti;
+wa.href = 'https://wa.me/?text=' + encodeURIComponent('¡Edu cumple 65! 🎉 Mirá la cuenta regresiva: https://tomdosfre.github.io/temp_stuff/edu65/');
 note.onclick = () => { if (note.classList.contains('hide')) { note.classList.remove('hide'); confetti(); } };
 img.onerror = () => { if (!img.src.endsWith('11-01.jpg')) { img.src = 'fotos/11-01.jpg'; } };
 </script>
