@@ -68,7 +68,7 @@
 </section>
 <figure class="photo"><img id="img" alt="Foto del día"></figure>
 <div class="note" id="note"></div>
-<a class="wa" id="wa" target="_blank" rel="noopener">💬 Compartir por WhatsApp</a>
+<a class="wa" id="wa" href="#">📸 Compartir la foto del día</a>
 <canvas id="cv"></canvas>
 <script>
 const TZ = 'America/Argentina/Buenos_Aires';
@@ -118,7 +118,20 @@ function confetti() {
   })();
 }
 conf.onclick = confetti;
-wa.href = 'https://wa.me/?text=' + encodeURIComponent('¡Edu cumple 65! 🎉 Mirá la cuenta regresiva: https://tomdosfre.github.io/temp_stuff/edu65/');
+function shareText() {
+  const n = Math.max(0, Math.floor((END - Date.now()) / 86400000));
+  return n === 0 ? '¡Hoy es el cumple de Edu! Acá está la foto del día' : n + (n === 1 ? ' día' : ' días') + ' para el cumple de Edu! Acá está la foto del día';
+}
+wa.onclick = async e => {
+  e.preventDefault();
+  const text = shareText();
+  try {
+    const blob = await (await fetch(img.src)).blob();
+    const file = new File([blob], 'edu65-' + img.dataset.want + '.jpg', { type: 'image/jpeg' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], text }); return; }
+  } catch (err) { if (err.name === 'AbortError') return; }
+  open('https://wa.me/?text=' + encodeURIComponent(text + ' ' + img.src), '_blank');
+};
 note.onclick = () => { if (note.classList.contains('hide')) { note.classList.remove('hide'); confetti(); } };
 img.onerror = () => { if (!img.src.endsWith('11-01.jpg')) { img.src = 'fotos/11-01.jpg'; } };
 </script>
