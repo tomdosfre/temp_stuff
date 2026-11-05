@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<title>Comparador de propiedades</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap">
+<style>
+/* Layout: budget strip on top, one wide comparison sheet (rows = variables, columns = options), verdict + chart below. Light-only by design. */
+:root{
+  --bg:#f6f8fb; --card:#ffffff; --ink:#1f2933; --ink-2:#5f6b7a; --ink-3:#8a95a3; --line:#dfe4ea; --field:#f9fafc;
+  --blue:#1a73e8; --blue-bg:#e8f0fe;
+  --good:#137333; --good-bg:#e6f4ea; --good-dot:#34a853;
+  --mid:#b06000; --mid-bg:#fef7e0; --mid-dot:#fbbc04;
+  --bad:#c5221f; --bad-bg:#fce8e6; --bad-dot:#ea4335;
+  --o1:#4285f4; --o2:#9334e6; --o3:#12b5cb; --o4:#e8710a; --o5:#e52592;
+  --sans:"Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  --mono:"Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;margin:0}
+.wrap{max-width:1180px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:20px}
+h1{font-size:26px;font-weight:500;margin:0;text-wrap:balance}
+h2{font-size:17px;font-weight:500;margin:0 0 4px}
+.sub{color:var(--ink-2);margin:4px 0 0;max-width:70ch}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+#base{width:100%}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tile .lab{font-size:14px;color:var(--ink-2);letter-spacing:.02em}
+.tile .big{font-size:28px;font-weight:700;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile.ok{background:var(--good-bg);border-color:#ceead6}.tile.ok .big,.tile.ok .lab{color:var(--good)}
+.tile.over{background:var(--bad-bg);border-color:#fad2cf}.tile.over .big,.tile.over .lab{color:var(--bad)}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+input,select{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:8px;height:40px;padding:0 8px;min-width:0}
+input:focus,select:focus,button:focus-visible{outline:2px solid var(--blue);outline-offset:1px;border-color:var(--blue)}
+input.num{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;width:100%;font-weight:500;font-size:16px;color:#111827}
+.fx{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center;font-size:14px;color:var(--ink-2)}
+.fx input{height:38px;width:100%}
+.sheet{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+table{border-collapse:separate;border-spacing:0;width:100%;min-width:1200px;table-layout:fixed}
+col.c-lab{width:240px}
+.tile select{flex:none;width:80px}
+td input.num{font-size:16px;padding:0 6px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:middle;text-align:left}
+tbody tr:last-child td{border-bottom:0}
+td.lab,th.lab{position:sticky;left:0;background:var(--card);z-index:1;font-weight:400;color:var(--ink);border-right:1px solid var(--line)}
+td.lab small{display:block;color:var(--ink-2);font-size:13px;line-height:1.35}
+thead th{background:var(--card);font-weight:500;padding-top:10px}
+.opthead{display:flex;flex-direction:column;gap:6px}
+.opthead .tag{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink-2)}
+.swatch{width:10px;height:10px;border-radius:50%;flex:none}
+.opthead input[type=text]{width:100%;font-weight:500}
+.opthead label{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink-2);cursor:pointer}
+.opthead input[type=checkbox]{height:16px;width:16px;accent-color:var(--blue)}
+.cell{display:flex;gap:4px;align-items:center}
+.cell select{width:72px;flex:none;padding:0 4px;font-size:14px}
+.cell .u{color:var(--ink-2);font-size:14px;min-width:18px;flex:none}
+tr.sec td{background:#eef2f7;color:var(--ink-2);font-size:13px;letter-spacing:.06em;text-transform:uppercase;font-weight:500;padding:6px 8px}
+tr.sec td.lab{background:#eef2f7}
+td.off{opacity:.45}
+.res{font-family:var(--mono);font-variant-numeric:tabular-nums;text-align:right;border-radius:8px;padding:8px 10px;white-space:nowrap;font-size:18px;font-weight:700}
+.rk-g{background:var(--good-bg);color:var(--good)}
+.rk-y{background:var(--mid-bg);color:var(--mid)}
+.rk-r{background:var(--bad-bg);color:var(--bad)}
+.rk-n{color:var(--ink-2)}
+.res .pill{font-family:var(--sans);font-size:14px;font-weight:500;margin-right:8px}
+tr.overall td{border-top:2px solid var(--line)}
+tr.overall .res{font-size:21px;font-weight:700}
+.verdict{display:flex;gap:14px;align-items:flex-start}
+.verdict .dot{width:14px;height:14px;border-radius:50%;background:var(--good-dot);margin-top:5px;flex:none}
+.verdict p{margin:0;font-size:19px;font-weight:500;max-width:75ch}
+.verdict .small{font-size:16px;font-weight:400;color:var(--ink-2);margin-top:4px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:15px;color:var(--ink-2)}
+.legend span{display:flex;align-items:center;gap:6px}
+.chartbox{width:100%;overflow-x:auto}
+svg text{font-family:var(--sans);font-size:14px;fill:var(--ink-2)}
+button{font:inherit;font-size:15px;background:var(--card);color:var(--blue);border:1px solid var(--line);border-radius:8px;height:42px;padding:0 14px;cursor:pointer}
+button:hover{background:var(--blue-bg)}
+.notes{font-size:15px;color:var(--ink-2);display:grid;gap:6px;max-width:90ch}
+.notes p{margin:0}
+.toast{font-size:12px;color:var(--good)}
+@media (max-width:600px){h1{font-size:22px}.tile .big{font-size:19px}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Comparador de propiedades</h1>
+    <p class="sub">Cargá hasta cinco propiedades en Argentina o España. Cada columna es una opción; las que dejes sin precio o sin tildar no cuentan. Abajo ves qué rinde más a 5, 10, 15 y 20 años, todo pasado a una misma moneda.</p>
+  </header>
+
+  <section class="strip" aria-label="Presupuesto">
+    <div class="tile">
+      <span class="lab">Total para invertir</span>
+      <div class="row" style="flex-wrap:nowrap">
+        <input id="budget" class="num" inputmode="decimal" aria-label="Total para invertir">
+        <select id="budgetCur" aria-label="Moneda del total"><option>USD</option><option>EUR</option><option>ARS</option></select>
+      </div>
+    </div>
+    <div class="tile">
+      <span class="lab" id="allocLab">Asignado</span>
+      <span class="big" id="alloc">—</span>
+    </div>
+    <div class="tile" id="spareTile">
+      <span class="lab" id="spareLab">Te sobra</span>
+      <span class="big" id="spare">—</span>
+    </div>
+    <div class="tile">
+      <span class="lab">Cotizaciones de hoy (editalas)</span>
+      <div class="fx">
+        <span>1 dólar =</span><div class="cell"><input id="usdArs" class="num" inputmode="decimal" aria-label="Pesos por dólar"><span class="u">ARS</span></div>
+        <span>1 euro =</span><div class="cell"><input id="eurUsd" class="num" inputmode="decimal" aria-label="Dólares por euro"><span class="u">USD</span></div>
+        <span>El peso pierde por año</span><div class="cell"><input id="arsDep" class="num" inputmode="decimal" aria-label="Devaluación anual del peso"><span class="u">%</span></div>
+      </div>
+    </div>
+    <div class="tile">
+      <span class="lab">Comparar todo en</span>
+      <select id="base" aria-label="Moneda de comparación"><option value="USD">Dólares (USD)</option><option value="EUR">Euros (EUR)</option></select>
+      <span style="font-size:14px;color:var(--ink-2)">Los resultados y el gráfico usan esta moneda.</span>
+    </div>
+  </section>
+
+  <div class="sheet">
+    <table id="tbl">
+      <colgroup><col class="c-lab"><col><col><col><col><col></colgroup>
+      <thead><tr id="headRow"><th class="lab">Opción</th></tr></thead>
+      <tbody id="inBody"></tbody>
+      <tbody id="outBody"></tbody>
+    </table>
+  </div>
+
+  <section class="card verdict" aria-live="polite">
+    <span class="dot" id="vdot"></span>
+    <div><p id="vtext">—</p><p class="small" id="vsmall"></p></div>
+  </section>
+
+  <section class="card">
+    <h2>Cuánto tendrías si vendés en cada año</h2>
+    <p class="sub" style="margin:0 0 10px">Alquileres netos cobrados hasta ese año más lo que te queda al vender, en la moneda de comparación.</p>
+    <div class="legend" id="legend"></div>
+    <div class="chartbox"><svg id="chart" viewBox="0 0 900 320" width="100%" role="img" aria-label="Valor acumulado por opción a lo largo de 20 años"></svg></div>
+  </section>
+
+  <section class="row">
+    <button id="copyBtn" type="button">Copiar resumen para WhatsApp</button>
+    <button id="resetBtn" type="button">Volver al ejemplo</button>
+    <span class="toast" id="toast"></span>
+  </section>
+
+  <section class="notes">
+    <h2>Cómo se calcula</h2>
+    <p><b>Capital necesario</b> = precio + gastos de compra + obras. Eso es lo que se descuenta de tu total.</p>
+    <p><b>Alquiler neto por año</b> = alquiler × meses ocupados − comisión inmobiliaria − gastos mensuales − impuestos. Los gastos e impuestos suben al mismo ritmo que el alquiler.</p>
+    <p><b>Rendimiento anual</b> (TIR) a cada plazo: combina los alquileres netos de cada año y la venta al final, menos los gastos de venta. Es la tasa anual equivalente; se puede comparar con un plazo fijo o un bono.</p>
+    <p><b>Puntaje final</b>: el promedio del rendimiento anual a 5, 10, 15 y 20 años, para tener un solo número por opción. La de puntaje más alto sale verde (“Mejor”).</p>
+    <p><b>Multiplicador</b>: cuántas veces recuperás lo que pusiste a 20 años. <b>Recupero</b>: años hasta que los alquileres netos solos devuelven el capital.</p>
+    <p><b>Pesos</b>: todo lo que cargues en ARS se convierte cada año a una cotización que empeora según “El peso pierde por año”. El aumento del alquiler y la valorización de algo cargado en pesos se leen en pesos. El euro contra el dólar se toma fijo.</p>
+    <p>No incluye hipoteca ni impuesto a la renta sobre los alquileres o la ganancia. Los valores de ejemplo son ilustrativos: reemplazalos con los datos reales.</p>
+  </section>
+</div>
+
+<script>
+(function(){
+const N = 5, HZ = [5,10,15,20], KEY = 'comparador-propiedades-v1';
+const COLORS = ['var(--o1)','var(--o2)','var(--o3)','var(--o4)','var(--o5)'];
+const HEX = ['#4285f4','#9334e6','#12b5cb','#e8710a','#e52592'];
+const LETTERS = ['A','B','C','D','E'];
+
+const blank = () => ({on:true,name:'',price:0,priceCur:'USD',buyPct:7,works:0,worksCur:'USD',rent:0,rentCur:'USD',vacancy:1,mgmtPct:6,running:0,runningCur:'USD',tax:0,taxCur:'USD',rentGr:3,valGr:3,sellPct:4});
+function example(){
+  return {
+    budget:450000, budgetCur:'USD', base:'USD', usdArs:1450, eurUsd:1.15, arsDep:15,
+    opts:[
+      Object.assign(blank(),{name:'Depto Palermo (ejemplo)',price:120000,buyPct:7,works:5000,rent:750,vacancy:1,mgmtPct:6,running:30,tax:600,rentGr:3,valGr:3,sellPct:4}),
+      Object.assign(blank(),{name:'Piso Valencia (ejemplo)',price:180000,priceCur:'EUR',buyPct:11,works:0,worksCur:'EUR',rent:950,rentCur:'EUR',vacancy:0.5,mgmtPct:7,running:90,runningCur:'EUR',tax:1400,taxCur:'EUR',rentGr:2.5,valGr:3,sellPct:6}),
+      Object.assign(blank(),{name:'Depto Córdoba (ejemplo)',price:65000,buyPct:7,works:8000,rent:550000,rentCur:'ARS',vacancy:1.5,mgmtPct:6,running:20000,runningCur:'ARS',tax:250000,taxCur:'ARS',rentGr:20,valGr:3,sellPct:4}),
+      blank(), blank()
+    ]
+  };
+}
+
+let S;
+try { S = JSON.parse(localStorage.getItem(KEY)); } catch(e) { S = null; }
+if (!S || !Array.isArray(S.opts) || S.opts.length !== N) S = example();
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
+
+const ROWS = [
+  {sec:'Compra'},
+  {k:'price', label:'Precio de compra', t:'money'},
+  {k:'buyPct', label:'Gastos de compra', hint:'Escritura, impuestos, comisión. AR ~6–8%, ES ~10–12%', t:'pct'},
+  {k:'works', label:'Obras o arreglos iniciales', t:'money'},
+  {sec:'Alquiler y gastos'},
+  {k:'rent', label:'Alquiler mensual', t:'money'},
+  {k:'vacancy', label:'Meses vacía por año', t:'num'},
+  {k:'mgmtPct', label:'Comisión inmobiliaria', hint:'% del alquiler cobrado', t:'pct'},
+  {k:'running', label:'Gastos mensuales a tu cargo', hint:'Expensas extraordinarias, comunidad, seguro', t:'money'},
+  {k:'tax', label:'Impuestos por año', hint:'ABL, inmobiliario, IBI', t:'money'},
+  {sec:'Supuestos a futuro'},
+  {k:'rentGr', label:'Aumento del alquiler por año', hint:'En la moneda del alquiler', t:'pct'},
+  {k:'valGr', label:'Valorización por año', hint:'En la moneda del precio', t:'pct'},
+  {k:'sellPct', label:'Gastos de venta', hint:'Comisión y escritura al vender', t:'pct'}
+];
+const OUT = [
+  {sec:'Resultados'},
+  {k:'cash', label:'Capital necesario', hint:'Precio + gastos + obras'},
+  {k:'yield1', label:'Rinde neto año 1', hint:'Alquiler neto / capital'},
+  {k:'payback', label:'Recupero con alquileres', hint:'Años'},
+  {k:'irr5', label:'Rendimiento anual a 5 años'},
+  {k:'irr10', label:'Rendimiento anual a 10 años'},
+  {k:'irr15', label:'Rendimiento anual a 15 años'},
+  {k:'irr20', label:'Rendimiento anual a 20 años'},
+  {k:'mult', label:'Multiplicador a 20 años', hint:'Cuántas veces lo que pusiste'},
+  {k:'profit', label:'Ganancia a 20 años', hint:'Después de recuperar el capital'},
+  {k:'overall', label:'Puntaje final', hint:'Promedio del rendimiento anual a 5, 10, 15 y 20 años. Define cuál es la mejor.', cls:'overall'}
+];
+
+/* ---------- number parsing / formatting (es-AR) ---------- */
+function parseNum(s){
+  s = String(s).trim().replace(/\s|\$|€|%/g,'').replace(/^(US|U\$S)/i,'');
+  if (!s) return 0;
+  const hasDot = s.includes('.'), hasComma = s.includes(',');
+  if (hasDot && hasComma) s = s.lastIndexOf(',') > s.lastIndexOf('.') ? s.replace(/\./g,'').replace(',','.') : s.replace(/,/g,'');
+  else if (hasComma) s = /^\d{1,3}(,\d{3})+$/.test(s) ? s.replace(/,/g,'') : s.replace(',','.');
+  else if (hasDot && /^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g,'');
+  const n = parseFloat(s);
+  return isFinite(n) ? n : 0;
+}
+const nf0 = new Intl.NumberFormat('es-AR',{maximumFractionDigits:0});
+const nf2 = new Intl.NumberFormat('es-AR',{maximumFractionDigits:2});
+const fmtIn = n => n ? nf2.format(n) : '';
+const sym = () => S.base === 'EUR' ? '€' : 'US$';
+const money = n => (n < 0 ? '−' : '') + sym() + ' ' + nf0.format(Math.abs(Math.round(n)));
+function moneyShort(n){
+  const a = Math.abs(n), s = n < 0 ? '−' : '';
+  if (a >= 1e6) return s + sym() + ' ' + nf2.format(Math.round(a/1e4)/100) + ' M';
+  if (a >= 1e3) return s + sym() + ' ' + nf0.format(Math.round(a/1e3)) + ' k';
+  return s + sym() + ' ' + nf0.format(Math.round(a));
+}
+const pct = x => x == null || !isFinite(x) ? '—' : nf2.format(Math.round(x*1000)/10) + '%';
+
+/* ---------- currency conversion ---------- */
+function toBase(a, cur, t){
+  if (!a) return 0;
+  let usd;
+  if (cur === 'USD') usd = a;
+  else if (cur === 'EUR') usd = a * (S.eurUsd || 1);
+  else usd = a / ((S.usdArs || 1) * Math.pow(1 + S.arsDep/100, t));
+  return S.base === 'EUR' ? usd / (S.eurUsd || 1) : usd;
+}
+
+/* ---------- model ---------- */
+function irr(flows){
+  const npv = r => flows.reduce((s,f,t) => s + f/Math.pow(1+r,t), 0);
+  let lo = -0.99, hi = 1;
+  if (npv(lo) * npv(hi) > 0) { hi = 10; if (npv(lo) * npv(hi) > 0) return null; }
+  for (let i = 0; i < 200; i++) { const m = (lo+hi)/2; if (npv(lo) * npv(m) <= 0) hi = m; else lo = m; }
+  return (lo+hi)/2;
+}
+function model(o){
+  const active = o.on && o.price > 0;
+  if (!active) return {active:false};
+  const C0 = toBase(o.price*(1+o.buyPct/100), o.priceCur, 0) + toBase(o.works, o.worksCur, 0);
+  const cf = [0], sale = [], cum = [0], eq = [];
+  for (let t = 0; t <= 20; t++) {
+    if (t > 0) {
+      const g = Math.pow(1 + o.rentGr/100, t-1);
+      const occ = Math.max(0, 12 - o.vacancy);
+      const c = toBase(o.rent*occ*g*(1 - o.mgmtPct/100), o.rentCur, t)
+              - toBase(o.running*12*g, o.runningCur, t)
+              - toBase(o.tax*g, o.taxCur, t);
+      cf.push(c); cum.push(cum[t-1] + c);
+    }
+    sale.push(toBase(o.price*Math.pow(1+o.valGr/100, t)*(1 - o.sellPct/100), o.priceCur, t));
+    eq.push(cum[t] + sale[t]);
+  }
+  const r = {active:true, cash:C0, eq, yield1: C0 ? cf[1]/C0 : null};
+  HZ.forEach(H => {
+    const flows = [-C0];
+    for (let t = 1; t <= H; t++) flows.push(cf[t] + (t === H ? sale[H] : 0));
+    r['irr'+H] = irr(flows);
+  });
+  let pb = null; for (let t = 1; t <= 20; t++) if (cum[t] >= C0) { pb = t; break; }
+  r.payback = pb;
+  r.mult = C0 ? eq[20]/C0 : null;
+  r.profit = eq[20] - C0;
+  const irrs = HZ.map(H => r['irr'+H]).filter(x => x != null);
+  r.overall = irrs.length ? irrs.reduce((a,b)=>a+b,0)/irrs.length : null;
+  return r;
+}
+
+/* ---------- build table once ---------- */
+const $ = id => document.getElementById(id);
+function curSel(id, val){
+  return `<select id="${id}" aria-label="Moneda">${['ARS','USD','EUR'].map(c=>`<option${c===val?' selected':''}>${c}</option>`).join('')}</select>`;
+}
+function build(){
+  const head = $('headRow');
+  head.innerHTML = '<th class="lab">Opción</th>' + S.opts.map((o,i)=>`
+    <th id="h${i}"><div class="opthead">
+      <span class="tag"><span class="swatch" style="background:${COLORS[i]}"></span>Opción ${LETTERS[i]}</span>
+      <input type="text" id="o${i}-name" value="${(o.name||'').replace(/"/g,'&quot;')}" placeholder="Nombre o barrio" aria-label="Nombre opción ${LETTERS[i]}">
+      <label><input type="checkbox" id="o${i}-on"${o.on?' checked':''}> Incluir</label>
+    </div></th>`).join('');
+  const lab = r => `<td class="lab">${r.label}${r.hint?`<small>${r.hint}</small>`:''}</td>`;
+  $('inBody').innerHTML = ROWS.map(r => r.sec ? `<tr class="sec"><td class="lab">${r.sec}</td><td colspan="5"></td></tr>` :
+    `<tr>${lab(r)}${S.opts.map((o,i)=>`<td class="c${i}"><div class="cell">
+      <input class="num" id="o${i}-${r.k}" inputmode="decimal" value="${fmtIn(o[r.k])}" aria-label="${r.label} opción ${LETTERS[i]}">
+      ${r.t==='money' ? curSel(`o${i}-${r.k}Cur`, o[r.k+'Cur']) : r.t==='pct' ? '<span class="u">%</span>' : '<span class="u"></span>'}
+    </div></td>`).join('')}</tr>`).join('');
+  $('outBody').innerHTML = OUT.map(r => r.sec ? `<tr class="sec"><td class="lab">${r.sec} <span style="text-transform:none;letter-spacing:0" id="baseLab"></span></td><td colspan="5"></td></tr>` :
+    `<tr class="${r.cls||''}">${lab(r)}${S.opts.map((o,i)=>`<td class="c${i}"><div class="res rk-n" id="r-${r.k}-${i}">—</div></td>`).join('')}</tr>`).join('');
+  $('budget').value = fmtIn(S.budget); $('budgetCur').value = S.budgetCur;
+  $('usdArs').value = fmtIn(S.usdArs); $('eurUsd').value = fmtIn(S.eurUsd); $('arsDep').value = fmtIn(S.arsDep);
+  $('base').value = S.base;
+}
+
+/* ---------- ranking ---------- */
+function rank(vals, higherBetter){
+  const idx = vals.map((v,i)=>[v,i]).filter(([v])=>v!=null && isFinite(v));
+  const out = vals.map(()=>'rk-n');
+  if (idx.length < 2) return out;
+  const vs = idx.map(([v])=>v), mx = Math.max(...vs), mn = Math.min(...vs);
+  idx.forEach(([v,i]) => {
+    if (Math.abs(mx - mn) < 1e-9) out[i] = 'rk-y';
+    else if (v === (higherBetter ? mx : mn)) out[i] = 'rk-g';
+    else if (v === (higherBetter ? mn : mx)) out[i] = 'rk-r';
+    else out[i] = 'rk-y';
+  });
+  return out;
+}
+
+/* ---------- render results ---------- */
+let lastRes = [];
+function render(){
+  const res = S.opts.map(model); lastRes = res;
+  const act = res.map(r=>r.active);
+  S.opts.forEach((o,i)=>{ document.querySelectorAll('.c'+i).forEach(td=>td.classList.toggle('off', !act[i])); });
+  $('baseLab').textContent = '· en ' + (S.base==='EUR'?'euros':'dólares');
+
+  const fmt = {
+    cash: v=>money(v), yield1: pct, payback: v=> v==null ? 'más de 20' : v + (v===1?' año':' años'),
+    irr5:pct, irr10:pct, irr15:pct, irr20:pct, mult: v=> v==null?'—':nf2.format(Math.round(v*10)/10)+'x', profit: v=>money(v), overall:pct
+  };
+  const dir = {yield1:true, payback:false, irr5:true, irr10:true, irr15:true, irr20:true, mult:true, overall:true};
+  OUT.forEach(r=>{
+    if (!r.k) return;
+    const vals = res.map(x => x.active ? (r.k==='payback' ? (x.payback==null ? 99 : x.payback) : x[r.k]) : null);
+    const cls = r.k in dir ? rank(vals, dir[r.k]) : vals.map(()=>'rk-n');
+    res.forEach((x,i)=>{
+      const el = $(`r-${r.k}-${i}`);
+      el.className = 'res ' + (x.active ? cls[i] : 'rk-n');
+      if (!x.active) { el.textContent = '—'; return; }
+      const txt = fmt[r.k](x[r.k]);
+      if (r.k === 'overall') {
+        const word = {'rk-g':'Mejor','rk-y':'Intermedia','rk-r':'Peor','rk-n':''}[cls[i]];
+        el.innerHTML = (word ? `<span class="pill">${word}</span>` : '') + txt;
+      } else el.textContent = txt;
+    });
+  });
+
+  /* budget */
+  const budgetBase = toBase(S.budget, S.budgetCur, 0);
+  const alloc = res.reduce((s,x)=>s + (x.active ? x.cash : 0), 0);
+  const n = act.filter(Boolean).length;
+  $('allocLab').textContent = `Asignado (${n} de ${N} opciones)`;
+  $('alloc').textContent = money(alloc);
+  const spare = budgetBase - alloc;
+  $('spareTile').className = 'tile ' + (spare >= 0 ? 'ok' : 'over');
+  $('spareLab').textContent = spare >= 0 ? 'Te sobra' : 'Te pasás por';
+  $('spare').textContent = money(Math.abs(spare));
+
+  /* verdict */
+  const ranked = res.map((x,i)=>({x,i})).filter(o=>o.x.active && o.x.overall!=null).sort((a,b)=>b.x.overall-a.x.overall);
+  const nm = i => S.opts[i].name || ('Opción ' + LETTERS[i]);
+  if (ranked.length === 0) { $('vtext').textContent = 'Cargá el precio de al menos una opción para ver resultados.'; $('vsmall').textContent=''; $('vdot').style.background='var(--ink-3)'; }
+  else if (ranked.length === 1) { $('vtext').textContent = `${nm(ranked[0].i)} rinde ${pct(ranked[0].x.overall)} por año en promedio. Agregá otra opción para comparar.`; $('vsmall').textContent=''; $('vdot').style.background='var(--mid-dot)'; }
+  else {
+    const b = ranked[0], w = ranked[ranked.length-1];
+    $('vdot').style.background = 'var(--good-dot)';
+    $('vtext').textContent = `Con estos números, la mejor opción es ${nm(b.i)}: rinde ${pct(b.x.overall)} por año en promedio y multiplica el capital ${nf2.format(Math.round(b.x.mult*10)/10)} veces en 20 años.`;
+    const flips = HZ.filter(H => { const best = res.map((x,i)=>({v:x.active?x['irr'+H]:null,i})).filter(o=>o.v!=null).sort((a,c)=>c.v-a.v)[0]; return best && best.i !== b.i; });
+    $('vsmall').textContent = `La más floja es ${nm(w.i)} (${pct(w.x.overall)}).` + (flips.length ? ` Ojo: a ${flips.join(', ')} años gana otra opción, mirá las filas de cada plazo.` : ' Gana en los cuatro plazos.') + (spare < 0 ? ' Además, con estas opciones te pasás del presupuesto.' : '');
+  }
+
+  drawChart(res);
+  save();
+}
+
+/* ---------- chart ---------- */
+function drawChart(res){
+  const svg = $('chart'), W = 900, H = 320, L = 78, R = 16, T = 14, B = 34;
+  const series = res.map((x,i)=>({x,i})).filter(o=>o.x.active);
+  $('legend').innerHTML = series.map(o=>`<span><span class="swatch" style="background:${COLORS[o.i]}"></span>${(S.opts[o.i].name||'Opción '+LETTERS[o.i]).replace(/</g,'&lt;')}</span>`).join('');
+  if (!series.length) { svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle">Sin opciones cargadas</text>`; return; }
+  let mn = 0, mx = 0;
+  series.forEach(o=>o.x.eq.forEach(v=>{ mn=Math.min(mn,v); mx=Math.max(mx,v); }));
+  const span = mx - mn || 1, raw = span/5, mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const step = [1,2,2.5,5,10].map(m=>m*mag).find(s=>span/s <= 6);
+  const y0 = Math.floor(mn/step)*step, y1 = Math.ceil(mx/step)*step;
+  const sx = t => L + (W-L-R)*t/20, sy = v => T + (H-T-B)*(1-(v-y0)/(y1-y0));
+  let g = '';
+  for (let v = y0; v <= y1 + step/2; v += step) g += `<line x1="${L}" x2="${W-R}" y1="${sy(v)}" y2="${sy(v)}" stroke="${Math.abs(v)<1e-6?'#b8c1cc':'#e6eaef'}" stroke-width="1"/><text x="${L-8}" y="${sy(v)+4}" text-anchor="end">${moneyShort(v)}</text>`;
+  [0,5,10,15,20].forEach(t=> g += `<line x1="${sx(t)}" x2="${sx(t)}" y1="${T}" y2="${H-B}" stroke="#eef1f4"/><text x="${sx(t)}" y="${H-B+20}" text-anchor="middle">${t===0?'Hoy':'Año '+t}</text>`);
+  series.forEach(o=>{
+    const pts = o.x.eq.map((v,t)=>`${sx(t).toFixed(1)},${sy(v).toFixed(1)}`).join(' ');
+    g += `<polyline points="${pts}" fill="none" stroke="${HEX[o.i]}" stroke-width="2.5" stroke-linejoin="round"/>`;
+    g += `<circle cx="${sx(20)}" cy="${sy(o.x.eq[20])}" r="4" fill="${HEX[o.i]}"/>`;
+  });
+  series.forEach(o=>{ const c = o.x.cash; if (c >= y0 && c <= y1) g += `<line x1="${sx(0)-6}" x2="${sx(0)+6}" y1="${sy(c)}" y2="${sy(c)}" stroke="${HEX[o.i]}" stroke-width="2"/>`; });
+  svg.innerHTML = g;
+}
+
+/* ---------- events ---------- */
+document.addEventListener('input', e=>{
+  const id = e.target.id; if (!id) return;
+  const m = id.match(/^o(\d)-(\w+)$/);
+  if (m) {
+    const o = S.opts[+m[1]], k = m[2];
+    if (k === 'name') o.name = e.target.value;
+    else if (k === 'on') o.on = e.target.checked;
+    else if (k.endsWith('Cur')) o[k] = e.target.value;
+    else o[k] = parseNum(e.target.value);
+  } else if (id === 'budget' || id === 'usdArs' || id === 'eurUsd' || id === 'arsDep') S[id] = parseNum(e.target.value);
+  else if (id === 'budgetCur' || id === 'base') S[id] = e.target.value;
+  else return;
+  render();
+});
+document.addEventListener('change', e=>{ if (e.target.type === 'checkbox' || e.target.tagName === 'SELECT') e.target.dispatchEvent(new Event('input',{bubbles:true})); });
+document.addEventListener('focusout', e=>{
+  if (!e.target.classList || !e.target.classList.contains('num')) return;
+  e.target.value = fmtIn(parseNum(e.target.value));
+});
+$('resetBtn').addEventListener('click', ()=>{ S = example(); build(); render(); flash('Volvió al ejemplo'); });
+$('copyBtn').addEventListener('click', ()=>{
+  const lines = ['Comparador de propiedades (en ' + (S.base==='EUR'?'euros':'dólares') + ')'];
+  lastRes.forEach((x,i)=>{ if (!x.active) return;
+    lines.push(`• ${S.opts[i].name||'Opción '+LETTERS[i]}: capital ${money(x.cash)}, rinde año 1 ${pct(x.yield1)}, anual a 5/10/15/20 años ${HZ.map(H=>pct(x['irr'+H])).join(' / ')}, x${nf2.format(Math.round(x.mult*10)/10)} a 20 años`); });
+  lines.push($('vtext').textContent);
+  const txt = lines.join('\n');
+  const done = () => flash('Copiado');
+  try { navigator.clipboard.writeText(txt).then(done, ()=>fallback(txt)); } catch(err) { fallback(txt); }
+});
+function fallback(txt){ const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); flash('Copiado'); } catch(e) { flash('No se pudo copiar'); } ta.remove(); }
+function flash(m){ const t = $('toast'); t.textContent = m; clearTimeout(flash.h); flash.h = setTimeout(()=>t.textContent='', 2500); }
+
+build(); render();
+window.__model = model; window.__S = () => S;
+})();
+</script>
+</body>
+</html>
