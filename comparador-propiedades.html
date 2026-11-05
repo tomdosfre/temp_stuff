@@ -50,7 +50,10 @@ th,td{padding:6px 5px;border-bottom:1px solid var(--line);vertical-align:middle;
 tbody tr:last-child td{border-bottom:0}
 td.lab,th.lab{position:sticky;left:0;background:var(--card);z-index:1;font-weight:400;color:var(--ink);border-right:1px solid var(--line)}
 td.lab small{display:block;color:var(--ink-2);font-size:12.5px;line-height:1.35}
-thead th{background:var(--card);font-weight:500;padding-top:10px}
+thead th{background:var(--card);font-weight:500;padding-top:10px;position:sticky;top:0;z-index:2;box-shadow:0 2px 0 var(--line)}
+thead th.lab{z-index:3}
+/* the sheet fits on laptop screens, so let the page scroll it: that keeps the property names pinned on top */
+@media (min-width:960px){.sheet{overflow:visible}}
 .opthead{display:flex;flex-direction:column;gap:6px}
 .opthead .tag{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--ink-2)}
 .swatch{width:10px;height:10px;border-radius:50%;flex:none}
