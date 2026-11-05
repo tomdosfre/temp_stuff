@@ -86,6 +86,9 @@ button:hover{background:var(--blue-bg)}
 .toast{font-size:14px;color:var(--good)}
 .opthead select{width:100%;height:36px;font-size:14px}
 .opthead label.buy{color:var(--good);font-weight:500}
+.opthead label.own{color:var(--blue);font-weight:500}
+th.owned{background:var(--blue-bg)}
+input:disabled,select:disabled{opacity:.35}
 th.bought{background:var(--good-bg)}
 [hidden]{display:none!important}
 .ctiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
@@ -102,7 +105,7 @@ th.bought{background:var(--good-bg)}
 <div class="wrap">
   <header>
     <h1>Comparador de propiedades</h1>
-    <p class="sub">Cargá hasta cinco propiedades en Argentina o España. Cada columna es una propiedad: cargá precio y alquiler y abajo ves cuál rinde más. Tildá “La compro” en las que comprarías y ves el total.</p>
+    <p class="sub">Cargá hasta cinco propiedades en Argentina o España. Cada columna es una propiedad: cargá precio y alquiler y abajo ves cuál rinde más. Tildá “La compro” en las que comprarías, y “Ya es mío” en las que ya tenés: abajo ves el total.</p>
   </header>
 
   <section class="strip" aria-label="Presupuesto">
@@ -151,7 +154,7 @@ th.bought{background:var(--good-bg)}
   </section>
 
   <section class="card cartera" aria-live="polite">
-    <h2>Total de lo que comprás</h2>
+    <h2>Total: lo que comprás y lo que ya tenés</h2>
     <p id="cEmpty" class="sub" hidden>Tildá “La compro” arriba, en las propiedades que comprarías, y acá ves el total.</p>
     <div id="cBody">
       <div class="ctiles">
@@ -183,8 +186,8 @@ th.bought{background:var(--good-bg)}
     <p><b>Alquiler neto por año</b> = alquiler × meses ocupados − comisión inmobiliaria − gastos mensuales − impuestos. Los gastos e impuestos suben al mismo ritmo que el alquiler.</p>
     <p><b>Rendimiento anual</b> (TIR) a cada plazo: combina los alquileres netos de cada año y la venta al final, menos los gastos de venta. Es la tasa anual equivalente; se puede comparar con un plazo fijo o un bono.</p>
     <p><b>Puntaje final</b>: el promedio del rendimiento anual a 5, 10, 15 y 20 años, para tener un solo número por opción. La de puntaje más alto sale verde (“Mejor”).</p>
-    <p><b>Depto para mamá</b>: cargalo como una columna más. Precio y gastos: los del depto nuevo. Alquiler: lo que cobrarías por el depto que ella deja libre.</p>
-    <p><b>Total de lo que comprás</b>: suma las propiedades con “La compro”. “Tenés en 20 años” es lo que valen al venderlas más todos los alquileres netos cobrados.</p>
+    <p><b>Depto para mamá</b>: cargalo con sus datos y alquiler 0, porque vive ella. <b>Un depto que ya tenés</b>: cargá lo que vale hoy y el alquiler que cobrarías, y tildá “Ya es mío”. Cuenta en el total pero no gasta tu presupuesto, y no lleva gastos de compra ni obras.</p>
+    <p><b>Total de lo que comprás</b>: suma las propiedades con “La compro”. “Ponés” es solo plata nueva. “Tenés en 20 años” suma también lo que ya es tuyo: lo que vale todo al vender más los alquileres netos cobrados.</p>
     <p><b>Multiplicador</b>: cuántas veces recuperás lo que pusiste a 20 años. <b>Recupero</b>: años hasta que los alquileres netos solos devuelven el capital.</p>
     <p><b>Pesos</b>: todo lo que cargues en ARS se convierte cada año a una cotización que empeora según “El peso pierde por año”. El aumento del alquiler y la valorización de algo cargado en pesos se leen en pesos. El euro contra el dólar se toma fijo.</p>
     <p>No incluye hipoteca ni impuesto a la renta sobre los alquileres o la ganancia. Los valores de ejemplo son ilustrativos: reemplazalos con los datos reales.</p>
@@ -198,16 +201,16 @@ const COLORS = ['var(--o1)','var(--o2)','var(--o3)','var(--o4)','var(--o5)'];
 const HEX = ['#4285f4','#9334e6','#12b5cb','#e8710a','#e52592'];
 const LETTERS = ['A','B','C','D','E'];
 
-const blank = () => ({buy:false,name:'',price:0,priceCur:'USD',buyPct:7,works:0,worksCur:'USD',rent:0,rentCur:'USD',vacancy:1,mgmtPct:6,running:0,runningCur:'USD',tax:0,taxCur:'USD',rentGr:3,valGr:3,sellPct:4});
+const blank = () => ({buy:false,owned:false,name:'',price:0,priceCur:'USD',buyPct:7,works:0,worksCur:'USD',rent:0,rentCur:'USD',vacancy:1,mgmtPct:6,running:0,runningCur:'USD',tax:0,taxCur:'USD',rentGr:3,valGr:3,sellPct:4});
 function example(){
   return {
     budget:250000, budgetCur:'USD', base:'USD', usdArs:1450, eurUsd:1.15, arsDep:15,
     opts:[
       Object.assign(blank(),{name:'Depto Palermo (ejemplo)',buy:true,price:120000,buyPct:7,works:5000,rent:750,vacancy:1,mgmtPct:6,running:30,tax:600,rentGr:3,valGr:3,sellPct:4}),
       Object.assign(blank(),{name:'Piso Valencia (ejemplo)',price:180000,priceCur:'EUR',buyPct:11,works:0,worksCur:'EUR',rent:950,rentCur:'EUR',vacancy:0.5,mgmtPct:7,running:90,runningCur:'EUR',tax:1400,taxCur:'EUR',rentGr:2.5,valGr:3,sellPct:6}),
-      Object.assign(blank(),{name:'Depto para mamá (ejemplo)',buy:true,price:80000,buyPct:7,works:3000,rent:650,vacancy:1,mgmtPct:6,running:40,tax:500,rentGr:3,valGr:3,sellPct:4}),
       Object.assign(blank(),{name:'Depto Córdoba (ejemplo)',price:65000,buyPct:7,works:8000,rent:550000,rentCur:'ARS',vacancy:1.5,mgmtPct:6,running:20000,runningCur:'ARS',tax:250000,taxCur:'ARS',rentGr:20,valGr:3,sellPct:4}),
-      blank()
+      Object.assign(blank(),{name:'Depto nuevo para mamá (ejemplo)',buy:true,price:80000,buyPct:7,works:3000,rent:0,vacancy:0,mgmtPct:0,running:40,tax:500,rentGr:3,valGr:3,sellPct:4}),
+      Object.assign(blank(),{name:'Mi depto actual (ejemplo)',owned:true,price:110000,buyPct:0,works:0,rent:650,vacancy:1,mgmtPct:6,running:30,tax:550,rentGr:3,valGr:3,sellPct:4})
     ]
   };
 }
@@ -216,7 +219,7 @@ let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch(e) { S = null; }
 if (!S || !Array.isArray(S.opts) || S.opts.length !== N) S = example();
 /* older saved data: add the fields that came later */
-S.opts.forEach(o => { if (o.buy == null) o.buy = false; });
+S.opts.forEach(o => { if (o.buy == null) o.buy = false; if (o.owned == null) o.owned = false; });
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
 
 const ROWS = [
@@ -294,7 +297,8 @@ function irr(flows){
 function model(o){
   const active = o.price > 0;
   if (!active) return {active:false};
-  const C0 = toBase(o.price*(1+o.buyPct/100), o.priceCur, 0) + toBase(o.works, o.worksCur, 0);
+  const C0 = o.owned ? toBase(o.price, o.priceCur, 0)
+                    : toBase(o.price*(1+o.buyPct/100), o.priceCur, 0) + toBase(o.works, o.worksCur, 0);
   const cf = [0], sale = [], cum = [0], eq = [];
   for (let t = 0; t <= 20; t++) {
     if (t > 0) {
@@ -334,7 +338,8 @@ function build(){
     <th id="h${i}"><div class="opthead">
       <span class="tag"><span class="swatch" style="background:${COLORS[i]}"></span>Opción ${LETTERS[i]}</span>
       <input type="text" id="o${i}-name" value="${(o.name||'').replace(/"/g,'&quot;')}" placeholder="Nombre o barrio" aria-label="Nombre opción ${LETTERS[i]}">
-      <label class="buy"><input type="checkbox" id="o${i}-buy"${o.buy?' checked':''}> La compro</label>
+      <label class="buy" id="o${i}-buyLab"${o.owned?' hidden':''}><input type="checkbox" id="o${i}-buy"${o.buy?' checked':''}> La compro</label>
+      <label class="own"><input type="checkbox" id="o${i}-owned"${o.owned?' checked':''}> Ya es mío</label>
     </div></th>`).join('');
   const lab = r => `<td class="lab">${r.label}${r.hint?`<small>${r.hint}</small>`:''}</td>`;
   $('inBody').innerHTML = ROWS.map(r => r.sec ? `<tr class="sec"><td class="lab">${r.sec}</td><td colspan="5"></td></tr>` :
@@ -367,9 +372,12 @@ function rank(vals, higherBetter){
 /* ---------- totals of everything marked "La compro" ---------- */
 function portfolio(res){
   const budget = toBase(S.budget, S.budgetCur, 0);
-  const bought = res.map((x,i)=> x.active && S.opts[i].buy);
+  /* in the total: what you buy plus what is already yours; only purchases use the budget */
+  const bought = res.map((x,i)=> x.active && (S.opts[i].buy || S.opts[i].owned));
   const sel = res.filter((x,i)=> bought[i]);
-  const put = sel.reduce((s,x)=>s + x.cash, 0);
+  const put = res.reduce((s,x,i)=> s + (bought[i] && !S.opts[i].owned ? x.cash : 0), 0);
+  const have = res.reduce((s,x,i)=> s + (bought[i] && S.opts[i].owned ? x.cash : 0), 0);
+  const nNew = res.filter((x,i)=> bought[i] && !S.opts[i].owned).length;
   const spare = budget - put;
   const cf = [0], value = [];
   for (let t = 0; t <= 20; t++) {
@@ -380,11 +388,11 @@ function portfolio(res){
   const eq = value.map((v,t)=> v + cf.slice(0,t+1).reduce((a,b)=>a+b,0));
   const irrH = {};
   HZ.forEach(H => {
-    const flows = [-put];
+    const flows = [-(put + have)];
     for (let t = 1; t <= H; t++) flows.push(cf[t] + (t === H ? value[H] : 0));
-    irrH[H] = put > 0 ? irr(flows) : null;
+    irrH[H] = put + have > 0 ? irr(flows) : null;
   });
-  return {bought, n: sel.length, put, spare, cf, eq, irr: irrH, worth20: eq[20]};
+  return {bought, n: sel.length, nNew, put, have, spare, cf, eq, irr: irrH, worth20: eq[20]};
 }
 
 /* ---------- render results ---------- */
@@ -419,8 +427,8 @@ function render(){
   /* budget */
   const P = portfolio(res); lastP = P;
   const spare = P.spare;
-  S.opts.forEach((o,i)=> $('h'+i).classList.toggle('bought', !!P.bought[i]));
-  $('allocLab').textContent = P.n ? `Comprás ${P.n} ${P.n===1?'propiedad':'propiedades'}` : 'Comprás (marcá “La compro”)';
+  S.opts.forEach((o,i)=> { $('h'+i).classList.toggle('bought', !!P.bought[i] && !o.owned); $('h'+i).classList.toggle('owned', !!P.bought[i] && !!o.owned); });
+  $('allocLab').textContent = P.nNew ? `Comprás ${P.nNew} ${P.nNew===1?'propiedad':'propiedades'}` : 'Comprás (marcá “La compro”)';
   $('alloc').textContent = money(P.put);
   $('spareTile').className = 'tile ' + (spare >= 0 ? 'ok' : 'over');
   $('spareLab').textContent = spare >= 0 ? 'Te sobra' : 'Te pasás por';
@@ -430,13 +438,13 @@ function render(){
   $('cEmpty').hidden = P.n > 0; $('cBody').hidden = P.n === 0;
   if (P.n) {
     $('cPut').textContent = money(P.put);
-    $('cPutSub').textContent = `En ${P.n} ${P.n===1?'propiedad':'propiedades'}, con gastos y obras.`;
+    $('cPutSub').textContent = (P.nNew ? `Plata nueva en ${P.nNew} ${P.nNew===1?'propiedad':'propiedades'}, con gastos y obras.` : 'No comprás nada nuevo.') + (P.have ? ` Más lo que ya es tuyo: ${money(P.have)}.` : '');
     $('cRent').textContent = money(P.cf[1]);
     $('cRentSub').textContent = `El primer año. En el año 10: ${money(P.cf[10])}.`;
     $('cIrr').textContent = pct(P.irr[20]);
-    $('cIrrSub').textContent = `Todo junto, como si fuera una sola inversión.`;
+    $('cIrrSub').textContent = P.have ? `Todo junto: lo nuevo y lo que ya es tuyo.` : `Todo junto, como si fuera una sola inversión.`;
     $('cWorth').textContent = money(P.worth20);
-    $('cWorthSub').textContent = `Lo que valen al vender + alquileres cobrados. ${nf2.format(Math.round(P.worth20/P.put*10)/10)} veces lo que ponés.`;
+    $('cWorthSub').textContent = `Lo que valen al vender + alquileres cobrados. ${nf2.format(Math.round(P.worth20/(P.put+P.have)*10)/10)} veces ${P.have ? 'lo que ponés más lo que ya tenés' : 'lo que ponés'}.`;
   }
 
   /* verdict */
@@ -460,7 +468,7 @@ function render(){
 function drawChart(res, P){
   const svg = $('chart'), W = 900, H = 320, L = 78, R = 16, T = 14, B = 34;
   const series = res.map((x,i)=>({x,i})).filter(o=>o.x.active);
-  $('legend').innerHTML = (P.n ? `<span><span class="swatch" style="background:#1f2933;border-radius:2px;width:18px;height:4px"></span><b>Total de lo que comprás</b></span>` : '') +
+  $('legend').innerHTML = (P.n ? `<span><span class="swatch" style="background:#1f2933;border-radius:2px;width:18px;height:4px"></span><b>Total</b></span>` : '') +
     series.map(o=>`<span><span class="swatch" style="background:${COLORS[o.i]}"></span>${(S.opts[o.i].name||'Opción '+LETTERS[o.i]).replace(/</g,'&lt;')}</span>`).join('');
   if (!series.length) { svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle">Sin opciones cargadas</text>`; return; }
   let mn = 0, mx = 0;
@@ -495,6 +503,7 @@ document.addEventListener('input', e=>{
     const i = +m[1];
     if (k === 'name') o.name = e.target.value;
     else if (k === 'buy') o.buy = e.target.checked;
+    else if (k === 'owned') { o.owned = e.target.checked; $(`o${i}-buyLab`).hidden = o.owned; lockOwned(i); }
     else if (k.endsWith('Cur')) o[k] = e.target.value;
     else o[k] = parseNum(e.target.value);
   } else if (['budget','usdArs','eurUsd','arsDep'].includes(id)) S[id] = parseNum(e.target.value);
@@ -508,10 +517,12 @@ document.addEventListener('focusout', e=>{
   e.target.value = fmtIn(parseNum(e.target.value));
   fitNum(e.target);
 });
+/* a property you already own has no buying costs or works: grey those fields out */
+function lockOwned(i){ ['buyPct','works','worksCur'].forEach(k => { const el = $(`o${i}-${k}`); if (el) { el.disabled = !!S.opts[i].owned; el.title = S.opts[i].owned ? 'No aplica: ya es tuyo' : ''; } }); }
 function fitNum(el){ el.style.fontSize = el.value.length > 9 ? '12.5px' : el.value.length > 7 ? '14.5px' : ''; }
 function fitAll(){ document.querySelectorAll('td input.num').forEach(fitNum); }
-$('resetBtn').addEventListener('click', ()=>{ S = example(); build(); fitAll(); render(); flash('Volvió al ejemplo'); });
-$('clearBtn').addEventListener('click', ()=>{ S.opts = [0,1,2,3,4].map(()=>blank()); build(); fitAll(); render(); flash('Columnas vacías: cargá tus propiedades'); window.scrollTo({top: $('tbl').getBoundingClientRect().top + scrollY - 20}); });
+$('resetBtn').addEventListener('click', ()=>{ S = example(); build(); fitAll(); S.opts.forEach((o,i)=>lockOwned(i)); render(); flash('Volvió al ejemplo'); });
+$('clearBtn').addEventListener('click', ()=>{ S.opts = [0,1,2,3,4].map(()=>blank()); build(); fitAll(); S.opts.forEach((o,i)=>lockOwned(i)); render(); flash('Columnas vacías: cargá tus propiedades'); window.scrollTo({top: $('tbl').getBoundingClientRect().top + scrollY - 20}); });
 $('copyBtn').addEventListener('click', ()=>{
   const lines = ['Comparador de propiedades (en ' + (S.base==='EUR'?'euros':'dólares') + ')'];
   lastRes.forEach((x,i)=>{ if (!x.active) return;
@@ -525,7 +536,7 @@ $('copyBtn').addEventListener('click', ()=>{
 function fallback(txt){ const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); flash('Copiado'); } catch(e) { flash('No se pudo copiar'); } ta.remove(); }
 function flash(m){ const t = $('toast'); t.textContent = m; clearTimeout(flash.h); flash.h = setTimeout(()=>t.textContent='', 2500); }
 
-build(); fitAll(); render();
+build(); fitAll(); S.opts.forEach((o,i)=>lockOwned(i)); render();
 window.__model = model; window.__portfolio = portfolio; window.__S = () => S;
 })();
 </script>
