@@ -527,7 +527,14 @@ document.addEventListener('focusout', e=>{
   fitNum(e.target);
 });
 /* a property you already own has no buying costs or works: grey those fields out */
-function lockOwned(i){ ['buyPct','works','worksCur'].forEach(k => { const el = $(`o${i}-${k}`); if (el) { el.disabled = !!S.opts[i].owned; el.title = S.opts[i].owned ? 'No aplica: ya es tuyo' : ''; } }); }
+function lockOwned(i){
+  const own = !!S.opts[i].owned;
+  ['buyPct','works','worksCur'].forEach(k => { const el = $(`o${i}-${k}`); if (!el) return;
+    el.disabled = own; el.title = own ? 'No aplica: ya es tuyo' : '';
+    /* show 0 while it's yours; your own typed value comes back if you untick */
+    if (k !== 'worksCur') el.value = own ? '0' : fmtIn(S.opts[i][k]);
+  });
+}
 function fitNum(el){ el.style.fontSize = el.value.length > 9 ? '12.5px' : el.value.length > 7 ? '14.5px' : ''; }
 function fitAll(){ document.querySelectorAll('td input.num').forEach(fitNum); }
 $('resetBtn').addEventListener('click', ()=>{ S = example(); build(); fitAll(); S.opts.forEach((o,i)=>lockOwned(i)); render(); flash('Volvió al ejemplo'); });
