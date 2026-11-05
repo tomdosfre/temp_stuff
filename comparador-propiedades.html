@@ -27,11 +27,12 @@ h1{font-size:26px;font-weight:500;margin:0;text-wrap:balance}
 h2{font-size:17px;font-weight:500;margin:0 0 4px}
 .sub{color:var(--ink-2);margin:4px 0 0;max-width:70ch}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px}
-.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+#budget{flex:1}
 #base{width:100%}
 .tile{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .tile .lab{font-size:14px;color:var(--ink-2);letter-spacing:.02em}
-.tile .big{font-size:28px;font-weight:700;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .big{font-size:28px;font-weight:700;font-family:var(--mono);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 .tile.ok{background:var(--good-bg);border-color:#ceead6}.tile.ok .big,.tile.ok .lab{color:var(--good)}
 .tile.over{background:var(--bad-bg);border-color:#fad2cf}.tile.over .big,.tile.over .lab{color:var(--bad)}
 .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
