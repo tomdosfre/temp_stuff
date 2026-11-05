@@ -15,7 +15,7 @@
   --good:#137333; --good-bg:#e6f4ea; --good-dot:#34a853;
   --mid:#b06000; --mid-bg:#fef7e0; --mid-dot:#fbbc04;
   --bad:#c5221f; --bad-bg:#fce8e6; --bad-dot:#ea4335;
-  --o1:#4285f4; --o2:#9334e6; --o3:#12b5cb; --o4:#e8710a; --o5:#e52592;
+  --o1:#4285f4; --o2:#ea4335; --o3:#f9ab00; --o4:#34a853; --o5:#a142f4; --total:#202124;
   --sans:"Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
   --mono:"Roboto",system-ui,-apple-system,"Segoe UI",Arial,sans-serif;
   color-scheme:light;
@@ -80,7 +80,13 @@ tr.overall .res{font-size:19px;font-weight:700}
 .verdict .small{font-size:16px;font-weight:400;color:var(--ink-2);margin-top:4px}
 .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:15px;color:var(--ink-2)}
 .legend span{display:flex;align-items:center;gap:6px}
-.chartbox{width:100%;overflow-x:auto}
+.chartbox{width:100%;position:relative}
+#chart .pt{cursor:pointer;transition:r .12s}
+#chart .pt:hover,#chart .pt.on{r:7}
+.tip{position:absolute;pointer-events:none;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;line-height:1.4;box-shadow:0 4px 14px rgba(32,33,36,.14);white-space:nowrap;transform:translate(-50%,calc(-100% - 12px));z-index:5}
+.tip b{display:block;font-size:17px;font-variant-numeric:tabular-nums}
+.tip .tn{display:flex;align-items:center;gap:6px;color:var(--ink-2)}
+.tip .up{color:var(--good)}.tip .down{color:var(--bad)}
 svg text{font-family:var(--sans);font-size:14px;fill:var(--ink-2)}
 button{font:inherit;font-size:15px;background:var(--card);color:var(--blue);border:1px solid var(--line);border-radius:8px;height:42px;padding:0 14px;cursor:pointer}
 button:hover{background:var(--blue-bg)}
@@ -174,7 +180,8 @@ th.bought{background:var(--good-bg)}
     <h2>Cuánto tendrías si vendés en cada año</h2>
     <p class="sub" style="margin:0 0 10px">Alquileres netos cobrados hasta ese año más lo que te queda al vender, en la moneda de comparación.</p>
     <div class="legend" id="legend"></div>
-    <div class="chartbox"><svg id="chart" viewBox="0 0 900 320" width="100%" role="img" aria-label="Valor acumulado por opción a lo largo de 20 años"></svg></div>
+    <div class="chartbox" id="chartbox"><svg id="chart" viewBox="0 0 900 320" width="100%" role="img" aria-label="Valor acumulado por opción a lo largo de 20 años"></svg><div class="tip" id="tip" hidden></div></div>
+    <p class="sub" style="margin:6px 0 0;font-size:14px">Pasá el mouse (o tocá) un punto para ver el número.</p>
   </section>
 
   <section class="row">
@@ -202,7 +209,7 @@ th.bought{background:var(--good-bg)}
 (function(){
 const N = 5, HZ = [5,10,15,20], KEY = 'comparador-propiedades-v1';
 const COLORS = ['var(--o1)','var(--o2)','var(--o3)','var(--o4)','var(--o5)'];
-const HEX = ['#4285f4','#9334e6','#12b5cb','#e8710a','#e52592'];
+const HEX = ['#4285f4','#ea4335','#f9ab00','#34a853','#a142f4'], TOTAL = '#202124';
 const LETTERS = ['A','B','C','D','E'];
 
 const blank = () => ({buy:false,owned:false,name:'',price:0,priceCur:'USD',buyPct:7,works:0,worksCur:'USD',rent:0,rentCur:'USD',vacancy:1,mgmtPct:6,running:0,runningCur:'USD',tax:0,taxCur:'USD',rentGr:3,valGr:3,sellPct:4});
@@ -473,10 +480,12 @@ function render(){
 
 /* ---------- chart ---------- */
 function drawChart(res, P){
-  const svg = $('chart'), W = 900, H = 320, L = 78, R = 16, T = 14, B = 34;
+  const svg = $('chart'), W = 900, H = 320, L = 78, R = 24, T = 22, B = 34, MS = [0,5,10,15,20];
   const series = res.map((x,i)=>({x,i})).filter(o=>o.x.active);
-  $('legend').innerHTML = (P.n ? `<span><span class="swatch" style="background:#1f2933;border-radius:2px;width:18px;height:2px"></span><b>Total</b></span>` : '') +
-    series.map(o=>`<span><span class="swatch" style="background:${COLORS[o.i]}"></span>${(S.opts[o.i].name||'Opción '+LETTERS[o.i]).replace(/</g,'&lt;')}</span>`).join('');
+  const nm = i => (S.opts[i].name||'Opción '+LETTERS[i]).replace(/</g,'&lt;');
+  $('legend').innerHTML = (P.n ? `<span><span class="swatch" style="background:${TOTAL};border-radius:2px;width:18px;height:3px"></span><b>Total</b></span>` : '') +
+    series.map(o=>`<span><span class="swatch" style="background:${HEX[o.i]}"></span>${nm(o.i)}</span>`).join('');
+  $('tip').hidden = true;
   if (!series.length) { svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle">Sin opciones cargadas</text>`; return; }
   let mn = 0, mx = 0;
   series.forEach(o=>o.x.eq.forEach(v=>{ mn=Math.min(mn,v); mx=Math.max(mx,v); }));
@@ -487,21 +496,35 @@ function drawChart(res, P){
   const sx = t => L + (W-L-R)*t/20, sy = v => T + (H-T-B)*(1-(v-y0)/(y1-y0));
   let g = '';
   for (let v = y0; v <= y1 + step/2; v += step) g += `<line x1="${L}" x2="${W-R}" y1="${sy(v)}" y2="${sy(v)}" stroke="${Math.abs(v)<1e-6?'#c9d1da':'#eef1f4'}" stroke-width="1" vector-effect="non-scaling-stroke"/><text x="${L-8}" y="${sy(v)+4}" text-anchor="end">${moneyShort(v)}</text>`;
-  [0,5,10,15,20].forEach(t=> g += `<text x="${sx(t)}" y="${H-B+20}" text-anchor="${t===20?'end':t===0?'start':'middle'}">${t===0?'Hoy':'Año '+t}</text>`);
-  series.forEach(o=>{
-    const pts = o.x.eq.map((v,t)=>`${sx(t).toFixed(1)},${sy(v).toFixed(1)}`).join(' ');
-    g += `<polyline points="${pts}" fill="none" stroke="${HEX[o.i]}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.9"/>`;
-    g += `<circle cx="${sx(20)}" cy="${sy(o.x.eq[20])}" r="3" fill="${HEX[o.i]}" stroke="#fff" stroke-width="1"/>`;
-  });
+  MS.forEach(t=> g += `<line x1="${sx(t)}" x2="${sx(t)}" y1="${T}" y2="${H-B}" stroke="#f3f5f7" vector-effect="non-scaling-stroke"/><text x="${sx(t)}" y="${H-B+20}" text-anchor="${t===20?'end':t===0?'start':'middle'}">${t===0?'Hoy':'Año '+t}</text>`);
+  /* each line: thin path, plus a dot at every milestone carrying its numbers for the tooltip */
+  const line = (eq, color, w) => `<polyline points="${eq.map((v,t)=>`${sx(t).toFixed(1)},${sy(v).toFixed(1)}`).join(' ')}" fill="none" stroke="${color}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+  const dots = (eq, color, name, basis, what) => MS.map(t => `<circle class="pt" cx="${sx(t).toFixed(1)}" cy="${sy(eq[t]).toFixed(1)}" r="4.5" fill="${color}" stroke="#fff" stroke-width="1.5" data-n="${name}" data-c="${color}" data-t="${t}" data-v="${eq[t]}" data-b="${basis}" data-w="${what}"></circle>`).join('');
+  let pts = '';
   if (P.n) {
     const tp = P.eq.map((v,t)=>`${sx(t).toFixed(1)},${sy(v).toFixed(1)}`).join(' ');
-    g = `<polygon points="${sx(0)},${sy(Math.max(y0,0))} ${tp} ${sx(20)},${sy(Math.max(y0,0))}" fill="#1f2933" opacity="0.05"/>` + g;
-    g += `<polyline points="${tp}" fill="none" stroke="#1f2933" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
-    g += `<circle cx="${sx(20)}" cy="${sy(P.eq[20])}" r="3.5" fill="#1f2933" stroke="#fff" stroke-width="1"/>`;
-    g += `<text x="${sx(20)-6}" y="${sy(P.eq[20])-10}" text-anchor="end" style="fill:#1f2933;font-weight:500">Total ${moneyShort(P.eq[20])}</text>`;
+    g += `<polygon points="${sx(0)},${sy(Math.max(y0,0))} ${tp} ${sx(20)},${sy(Math.max(y0,0))}" fill="${TOTAL}" opacity="0.04"/>`;
   }
-  svg.innerHTML = g;
+  series.forEach(o=>{ g += line(o.x.eq, HEX[o.i], 1.8); pts += dots(o.x.eq, HEX[o.i], nm(o.i), o.x.cash, S.opts[o.i].owned ? 'sobre lo que vale hoy' : 'sobre lo que pusiste'); });
+  if (P.n) {
+    g += line(P.eq, TOTAL, 2.4);
+    pts += dots(P.eq, TOTAL, 'Total', P.put + P.have, P.have ? 'sobre lo que pusiste y ya tenías' : 'sobre lo que pusiste');
+  }
+  svg.innerHTML = g + pts;
 }
+function showTip(c){
+  const box = $('chartbox').getBoundingClientRect(), r = c.getBoundingClientRect(), tip = $('tip');
+  const v = +c.dataset.v, b = +c.dataset.b, t = +c.dataset.t, chg = b ? (v/b - 1) : 0;
+  tip.innerHTML = `<span class="tn"><span class="swatch" style="background:${c.dataset.c}"></span>${c.dataset.n} · ${t===0?'hoy':'año '+t}</span><b>${money(v)}</b>` +
+    (b ? `<span class="${chg>=0?'up':'down'}">${chg>=0?'+':'−'}${nf0.format(Math.abs(Math.round(chg*100)))}% ${c.dataset.w}</span>` : '');
+  tip.hidden = false;
+  const x = Math.min(Math.max(r.left + r.width/2 - box.left, tip.offsetWidth/2 + 4), box.width - tip.offsetWidth/2 - 4);
+  tip.style.left = x + 'px'; tip.style.top = (r.top - box.top) + 'px';
+  document.querySelectorAll('#chart .pt.on').forEach(e=>e.classList.remove('on')); c.classList.add('on');
+}
+$('chart').addEventListener('pointerover', e => { if (e.target.classList.contains('pt')) showTip(e.target); });
+$('chart').addEventListener('click', e => { if (e.target.classList.contains('pt')) showTip(e.target); });
+$('chart').addEventListener('pointerleave', () => { $('tip').hidden = true; document.querySelectorAll('#chart .pt.on').forEach(e=>e.classList.remove('on')); });
 
 /* ---------- events ---------- */
 document.addEventListener('input', e=>{
