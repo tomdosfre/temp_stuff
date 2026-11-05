@@ -19,21 +19,17 @@ p a{color:#1967d2}
 <main>
   <h1>El comparador se mudó al Hub</h1>
   <a class="btn" id="go" href="https://hub.mentoliptus.com/propiedades">Abrir en el Hub</a>
-  <p id="again" hidden>¿No aparecieron tus números? <a href="#" id="resend">Mandarlos de nuevo</a></p>
 </main>
 <script>
-/* Your numbers lived in this browser under this address. They go to the Hub once, in the #fragment
-   (the fragment never reaches any server), and the Hub stores them exactly as they were. */
+/* Your numbers lived in this browser under this address. Every visit sends them to the Hub in the #fragment
+   (the fragment never reaches any server); the Hub stores each copy once, so nothing you change there is overwritten. */
 (function(){
-  const HUB = 'https://hub.mentoliptus.com/propiedades', KEY = 'comparador-propiedades-v1', SENT = KEY + '-movido';
+  const HUB = 'https://hub.mentoliptus.com/propiedades', KEY = 'comparador-propiedades-v1';
   let raw = null; try { raw = localStorage.getItem(KEY); } catch(e) {}
-  const link = () => { const b = btoa(String.fromCharCode(...new TextEncoder().encode(raw))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,''); return HUB + '#importar=' + b; };
-  if (!raw) { location.replace(HUB); return; }
-  document.getElementById('go').href = link();
-  document.getElementById('again').hidden = false;
-  document.getElementById('resend').addEventListener('click', (e) => { e.preventDefault(); location.href = link(); });
-  let sent = null; try { sent = localStorage.getItem(SENT); } catch(e) {}
-  if (!sent) { try { localStorage.setItem(SENT, new Date().toISOString()); } catch(e) {} location.href = link(); }
+  if (!raw) { location.replace(HUB + (/[?&]traer=1/.test(location.search) ? '#sin-datos' : '')); return; }
+  const b = btoa(String.fromCharCode(...new TextEncoder().encode(raw))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+  document.getElementById('go').href = HUB + '#importar=' + b;
+  location.replace(HUB + '#importar=' + b);
 })();
 </script>
 </body>
