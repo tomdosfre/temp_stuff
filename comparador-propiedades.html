@@ -94,7 +94,7 @@ th.owned{background:var(--blue-bg)}
 input:disabled,select:disabled{opacity:.35}
 th.bought{background:var(--good-bg)}
 [hidden]{display:none!important}
-.ctiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.ctiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
 .ct{background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .ct .lab{font-size:14px;color:var(--ink-2)}
 .ct .big{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
@@ -164,6 +164,7 @@ th.bought{background:var(--good-bg)}
         <div class="ct"><span class="lab">Ponés</span><span class="big" id="cPut">—</span><span class="cs" id="cPutSub"></span></div>
         <div class="ct"><span class="lab">Cobrás por año, neto</span><span class="big" id="cRent">—</span><span class="cs" id="cRentSub"></span></div>
         <div class="ct"><span class="lab">Rendimiento anual a 20 años</span><span class="big" id="cIrr">—</span><span class="cs" id="cIrrSub"></span></div>
+        <div class="ct"><span class="lab">Ganancia total en 20 años</span><span class="big" id="cGain">—</span><span class="cs" id="cGainSub"></span></div>
         <div class="ct hi"><span class="lab">Tenés en 20 años</span><span class="big" id="cWorth">—</span><span class="cs" id="cWorthSub"></span></div>
       </div>
     </div>
@@ -446,8 +447,11 @@ function render(){
     $('cRentSub').textContent = `El primer año. En el año 10: ${money(P.cf[10])}.`;
     $('cIrr').textContent = pct(P.irr[20]);
     $('cIrrSub').textContent = P.have ? `Todo junto: lo nuevo y lo que ya es tuyo.` : `Todo junto, como si fuera una sola inversión.`;
+    const base0 = P.put + P.have, gain = P.worth20 - base0;
+    $('cGain').textContent = (gain >= 0 ? '+' : '−') + nf0.format(Math.abs(Math.round(gain/base0*100))) + '%';
+    $('cGainSub').textContent = `${money(gain)} más que ${P.have ? 'lo que ponés y lo que ya tenés' : 'lo que ponés'}.`;
     $('cWorth').textContent = money(P.worth20);
-    $('cWorthSub').textContent = `Lo que valen al vender + alquileres cobrados. ${nf2.format(Math.round(P.worth20/(P.put+P.have)*10)/10)} veces ${P.have ? 'lo que ponés más lo que ya tenés' : 'lo que ponés'}.`;
+    $('cWorthSub').textContent = `Lo que valen al vender + alquileres cobrados.`;
   }
 
   /* verdict */
@@ -471,7 +475,7 @@ function render(){
 function drawChart(res, P){
   const svg = $('chart'), W = 900, H = 320, L = 78, R = 16, T = 14, B = 34;
   const series = res.map((x,i)=>({x,i})).filter(o=>o.x.active);
-  $('legend').innerHTML = (P.n ? `<span><span class="swatch" style="background:#1f2933;border-radius:2px;width:18px;height:4px"></span><b>Total</b></span>` : '') +
+  $('legend').innerHTML = (P.n ? `<span><span class="swatch" style="background:#1f2933;border-radius:2px;width:18px;height:2px"></span><b>Total</b></span>` : '') +
     series.map(o=>`<span><span class="swatch" style="background:${COLORS[o.i]}"></span>${(S.opts[o.i].name||'Opción '+LETTERS[o.i]).replace(/</g,'&lt;')}</span>`).join('');
   if (!series.length) { svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle">Sin opciones cargadas</text>`; return; }
   let mn = 0, mx = 0;
@@ -482,17 +486,19 @@ function drawChart(res, P){
   const y0 = Math.floor(mn/step)*step, y1 = Math.ceil(mx/step)*step;
   const sx = t => L + (W-L-R)*t/20, sy = v => T + (H-T-B)*(1-(v-y0)/(y1-y0));
   let g = '';
-  for (let v = y0; v <= y1 + step/2; v += step) g += `<line x1="${L}" x2="${W-R}" y1="${sy(v)}" y2="${sy(v)}" stroke="${Math.abs(v)<1e-6?'#b8c1cc':'#e6eaef'}" stroke-width="1"/><text x="${L-8}" y="${sy(v)+4}" text-anchor="end">${moneyShort(v)}</text>`;
-  [0,5,10,15,20].forEach(t=> g += `<line x1="${sx(t)}" x2="${sx(t)}" y1="${T}" y2="${H-B}" stroke="#eef1f4"/><text x="${sx(t)}" y="${H-B+20}" text-anchor="${t===20?'end':t===0?'start':'middle'}">${t===0?'Hoy':'Año '+t}</text>`);
+  for (let v = y0; v <= y1 + step/2; v += step) g += `<line x1="${L}" x2="${W-R}" y1="${sy(v)}" y2="${sy(v)}" stroke="${Math.abs(v)<1e-6?'#c9d1da':'#eef1f4'}" stroke-width="1" vector-effect="non-scaling-stroke"/><text x="${L-8}" y="${sy(v)+4}" text-anchor="end">${moneyShort(v)}</text>`;
+  [0,5,10,15,20].forEach(t=> g += `<text x="${sx(t)}" y="${H-B+20}" text-anchor="${t===20?'end':t===0?'start':'middle'}">${t===0?'Hoy':'Año '+t}</text>`);
   series.forEach(o=>{
     const pts = o.x.eq.map((v,t)=>`${sx(t).toFixed(1)},${sy(v).toFixed(1)}`).join(' ');
-    g += `<polyline points="${pts}" fill="none" stroke="${HEX[o.i]}" stroke-width="2.5" stroke-linejoin="round"/>`;
-    g += `<circle cx="${sx(20)}" cy="${sy(o.x.eq[20])}" r="4" fill="${HEX[o.i]}"/>`;
+    g += `<polyline points="${pts}" fill="none" stroke="${HEX[o.i]}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke" opacity="0.9"/>`;
+    g += `<circle cx="${sx(20)}" cy="${sy(o.x.eq[20])}" r="3" fill="${HEX[o.i]}" stroke="#fff" stroke-width="1"/>`;
   });
-  series.forEach(o=>{ const c = o.x.cash; if (c >= y0 && c <= y1) g += `<line x1="${sx(0)-6}" x2="${sx(0)+6}" y1="${sy(c)}" y2="${sy(c)}" stroke="${HEX[o.i]}" stroke-width="2"/>`; });
   if (P.n) {
-    g += `<polyline points="${P.eq.map((v,t)=>`${sx(t).toFixed(1)},${sy(v).toFixed(1)}`).join(' ')}" fill="none" stroke="#1f2933" stroke-width="4" stroke-dasharray="10 6" stroke-linejoin="round"/>`;
-    g += `<text x="${sx(20)-6}" y="${sy(P.eq[20])-10}" text-anchor="end" style="fill:#1f2933;font-weight:700">Total ${moneyShort(P.eq[20])}</text>`;
+    const tp = P.eq.map((v,t)=>`${sx(t).toFixed(1)},${sy(v).toFixed(1)}`).join(' ');
+    g = `<polygon points="${sx(0)},${sy(Math.max(y0,0))} ${tp} ${sx(20)},${sy(Math.max(y0,0))}" fill="#1f2933" opacity="0.05"/>` + g;
+    g += `<polyline points="${tp}" fill="none" stroke="#1f2933" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+    g += `<circle cx="${sx(20)}" cy="${sy(P.eq[20])}" r="3.5" fill="#1f2933" stroke="#fff" stroke-width="1"/>`;
+    g += `<text x="${sx(20)-6}" y="${sy(P.eq[20])-10}" text-anchor="end" style="fill:#1f2933;font-weight:500">Total ${moneyShort(P.eq[20])}</text>`;
   }
   svg.innerHTML = g;
 }
