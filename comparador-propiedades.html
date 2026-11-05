@@ -87,10 +87,7 @@ button:hover{background:var(--blue-bg)}
 .opthead select{width:100%;height:36px;font-size:14px}
 .opthead label.buy{color:var(--good);font-weight:500}
 th.bought{background:var(--good-bg)}
-.momnote{display:block;font-size:12px;color:var(--o4);line-height:1.3;margin-top:4px}
-.cin{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px 16px;margin-bottom:16px}
-.fx2{display:flex;flex-direction:column;gap:4px;font-size:14px;color:var(--ink-2)}
-.fx2 .cell select{width:72px}
+[hidden]{display:none!important}
 .ctiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .ct{background:var(--bg);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;min-width:0}
 .ct .lab{font-size:14px;color:var(--ink-2)}
@@ -105,7 +102,7 @@ th.bought{background:var(--good-bg)}
 <div class="wrap">
   <header>
     <h1>Comparador de propiedades</h1>
-    <p class="sub">Cargá hasta cinco propiedades en Argentina o España. Cada columna es una opción. Con “Comparar” entra en el ranking; con “La compro” suma a tu cartera. Abajo ves qué rinde más a 5, 10, 15 y 20 años y cuánto da todo junto, en una misma moneda.</p>
+    <p class="sub">Cargá hasta cinco propiedades en Argentina o España. Cada columna es una propiedad: cargá precio y alquiler y abajo ves cuál rinde más. Tildá “La compro” en las que comprarías y ves el total.</p>
   </header>
 
   <section class="strip" aria-label="Presupuesto">
@@ -154,20 +151,14 @@ th.bought{background:var(--good-bg)}
   </section>
 
   <section class="card cartera" aria-live="polite">
-    <h2>Mi cartera</h2>
-    <p class="sub" style="margin:0 0 14px">Suma las propiedades marcadas con “La compro”. La plata del presupuesto que no usás sigue rindiendo aparte.</p>
-    <div class="cin">
-      <div class="fx2"><span>Ya tengo (depto de mamá hoy)</span><div class="cell"><input id="owned" class="num" inputmode="decimal" aria-label="Valor de lo que ya tenés"><select id="ownedCur" aria-label="Moneda"><option>USD</option><option>EUR</option><option>ARS</option></select></div></div>
-      <div class="fx2"><span>Se valoriza por año</span><div class="cell"><input id="ownedGr" class="num" inputmode="decimal" aria-label="Valorización de lo que ya tenés"><span class="u">%</span></div></div>
-      <div class="fx2"><span>La plata que sobra rinde por año</span><div class="cell"><input id="spareRate" class="num" inputmode="decimal" aria-label="Rendimiento de la plata que sobra"><span class="u">%</span></div></div>
-    </div>
-    <p id="cEmpty" class="sub" hidden>Marcá “La compro” en las propiedades que comprarías y acá ves el total.</p>
+    <h2>Total de lo que comprás</h2>
+    <p id="cEmpty" class="sub" hidden>Tildá “La compro” arriba, en las propiedades que comprarías, y acá ves el total.</p>
     <div id="cBody">
       <div class="ctiles">
-        <div class="ct"><span class="lab">Ponés hoy</span><span class="big" id="cPut">—</span><span class="cs" id="cPutSub"></span></div>
-        <div class="ct"><span class="lab">Alquiler neto por año</span><span class="big" id="cRent">—</span><span class="cs" id="cRentSub"></span></div>
-        <div class="ct"><span class="lab">Rendimiento anual de tu presupuesto</span><span class="big" id="cIrr">—</span><span class="cs" id="cIrrSub"></span></div>
-        <div class="ct hi"><span class="lab">Tu patrimonio en 20 años</span><span class="big" id="cWorth">—</span><span class="cs" id="cWorthSub"></span></div>
+        <div class="ct"><span class="lab">Ponés</span><span class="big" id="cPut">—</span><span class="cs" id="cPutSub"></span></div>
+        <div class="ct"><span class="lab">Cobrás por año, neto</span><span class="big" id="cRent">—</span><span class="cs" id="cRentSub"></span></div>
+        <div class="ct"><span class="lab">Rendimiento anual a 20 años</span><span class="big" id="cIrr">—</span><span class="cs" id="cIrrSub"></span></div>
+        <div class="ct hi"><span class="lab">Tenés en 20 años</span><span class="big" id="cWorth">—</span><span class="cs" id="cWorthSub"></span></div>
       </div>
     </div>
   </section>
@@ -181,6 +172,7 @@ th.bought{background:var(--good-bg)}
 
   <section class="row">
     <button id="copyBtn" type="button">Copiar resumen para WhatsApp</button>
+    <button id="clearBtn" type="button">Empezar de cero</button>
     <button id="resetBtn" type="button">Volver al ejemplo</button>
     <span class="toast" id="toast"></span>
   </section>
@@ -191,8 +183,8 @@ th.bought{background:var(--good-bg)}
     <p><b>Alquiler neto por año</b> = alquiler × meses ocupados − comisión inmobiliaria − gastos mensuales − impuestos. Los gastos e impuestos suben al mismo ritmo que el alquiler.</p>
     <p><b>Rendimiento anual</b> (TIR) a cada plazo: combina los alquileres netos de cada año y la venta al final, menos los gastos de venta. Es la tasa anual equivalente; se puede comparar con un plazo fijo o un bono.</p>
     <p><b>Puntaje final</b>: el promedio del rendimiento anual a 5, 10, 15 y 20 años, para tener un solo número por opción. La de puntaje más alto sale verde (“Mejor”).</p>
-    <p><b>Para mamá</b>: el depto nuevo no da alquiler porque vive mamá. Lo que gana es que el depto que ella deja se alquila. Por eso en esa columna van el precio y los gastos del depto nuevo, y como alquiler lo que te pagarían por el depto que libera. La valorización del depto que ya tenés no cuenta acá porque la tenés igual; va en “Mi cartera”.</p>
-    <p><b>Mi cartera</b>: suma las propiedades marcadas “La compro”. El rendimiento anual se calcula sobre todo el presupuesto: lo que ponés en propiedades más lo que sobra, que rinde la tasa que cargues. El patrimonio en 20 años suma lo que ya tenés valorizado, los alquileres netos cobrados, lo que te queda al vender lo comprado y la plata que sobró con sus intereses.</p>
+    <p><b>Depto para mamá</b>: cargalo como una columna más. Precio y gastos: los del depto nuevo. Alquiler: lo que cobrarías por el depto que ella deja libre.</p>
+    <p><b>Total de lo que comprás</b>: suma las propiedades con “La compro”. “Tenés en 20 años” es lo que valen al venderlas más todos los alquileres netos cobrados.</p>
     <p><b>Multiplicador</b>: cuántas veces recuperás lo que pusiste a 20 años. <b>Recupero</b>: años hasta que los alquileres netos solos devuelven el capital.</p>
     <p><b>Pesos</b>: todo lo que cargues en ARS se convierte cada año a una cotización que empeora según “El peso pierde por año”. El aumento del alquiler y la valorización de algo cargado en pesos se leen en pesos. El euro contra el dólar se toma fijo.</p>
     <p>No incluye hipoteca ni impuesto a la renta sobre los alquileres o la ganancia. Los valores de ejemplo son ilustrativos: reemplazalos con los datos reales.</p>
@@ -206,15 +198,14 @@ const COLORS = ['var(--o1)','var(--o2)','var(--o3)','var(--o4)','var(--o5)'];
 const HEX = ['#4285f4','#9334e6','#12b5cb','#e8710a','#e52592'];
 const LETTERS = ['A','B','C','D','E'];
 
-const blank = () => ({on:true,buy:false,kind:'rent',name:'',price:0,priceCur:'USD',buyPct:7,works:0,worksCur:'USD',rent:0,rentCur:'USD',vacancy:1,mgmtPct:6,running:0,runningCur:'USD',tax:0,taxCur:'USD',rentGr:3,valGr:3,sellPct:4});
+const blank = () => ({buy:false,name:'',price:0,priceCur:'USD',buyPct:7,works:0,worksCur:'USD',rent:0,rentCur:'USD',vacancy:1,mgmtPct:6,running:0,runningCur:'USD',tax:0,taxCur:'USD',rentGr:3,valGr:3,sellPct:4});
 function example(){
   return {
     budget:250000, budgetCur:'USD', base:'USD', usdArs:1450, eurUsd:1.15, arsDep:15,
-    owned:110000, ownedCur:'USD', ownedGr:3, spareRate:3,
     opts:[
       Object.assign(blank(),{name:'Depto Palermo (ejemplo)',buy:true,price:120000,buyPct:7,works:5000,rent:750,vacancy:1,mgmtPct:6,running:30,tax:600,rentGr:3,valGr:3,sellPct:4}),
       Object.assign(blank(),{name:'Piso Valencia (ejemplo)',price:180000,priceCur:'EUR',buyPct:11,works:0,worksCur:'EUR',rent:950,rentCur:'EUR',vacancy:0.5,mgmtPct:7,running:90,runningCur:'EUR',tax:1400,taxCur:'EUR',rentGr:2.5,valGr:3,sellPct:6}),
-      Object.assign(blank(),{name:'Mudanza de mamá (ejemplo)',kind:'mom',buy:true,price:80000,buyPct:7,works:3000,rent:650,vacancy:1,mgmtPct:6,running:40,tax:500,rentGr:3,valGr:3,sellPct:4}),
+      Object.assign(blank(),{name:'Depto para mamá (ejemplo)',buy:true,price:80000,buyPct:7,works:3000,rent:650,vacancy:1,mgmtPct:6,running:40,tax:500,rentGr:3,valGr:3,sellPct:4}),
       Object.assign(blank(),{name:'Depto Córdoba (ejemplo)',price:65000,buyPct:7,works:8000,rent:550000,rentCur:'ARS',vacancy:1.5,mgmtPct:6,running:20000,runningCur:'ARS',tax:250000,taxCur:'ARS',rentGr:20,valGr:3,sellPct:4}),
       blank()
     ]
@@ -225,8 +216,7 @@ let S;
 try { S = JSON.parse(localStorage.getItem(KEY)); } catch(e) { S = null; }
 if (!S || !Array.isArray(S.opts) || S.opts.length !== N) S = example();
 /* older saved data: add the fields that came later */
-{ const d = example(); ['owned','ownedCur','ownedGr','spareRate'].forEach(k => { if (S[k] == null) S[k] = d[k]; });
-  S.opts.forEach(o => { if (o.kind == null) o.kind = 'rent'; if (o.buy == null) o.buy = false; }); }
+S.opts.forEach(o => { if (o.buy == null) o.buy = false; });
 function save(){ try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e) {} }
 
 const ROWS = [
@@ -302,7 +292,7 @@ function irr(flows){
   return (lo+hi)/2;
 }
 function model(o){
-  const active = o.on && o.price > 0;
+  const active = o.price > 0;
   if (!active) return {active:false};
   const C0 = toBase(o.price*(1+o.buyPct/100), o.priceCur, 0) + toBase(o.works, o.worksCur, 0);
   const cf = [0], sale = [], cum = [0], eq = [];
@@ -344,8 +334,6 @@ function build(){
     <th id="h${i}"><div class="opthead">
       <span class="tag"><span class="swatch" style="background:${COLORS[i]}"></span>Opción ${LETTERS[i]}</span>
       <input type="text" id="o${i}-name" value="${(o.name||'').replace(/"/g,'&quot;')}" placeholder="Nombre o barrio" aria-label="Nombre opción ${LETTERS[i]}">
-      <select id="o${i}-kind" aria-label="Para qué es la opción ${LETTERS[i]}"><option value="rent"${o.kind!=='mom'?' selected':''}>Para alquilar</option><option value="mom"${o.kind==='mom'?' selected':''}>Para mamá</option></select>
-      <label><input type="checkbox" id="o${i}-on"${o.on?' checked':''}> Comparar</label>
       <label class="buy"><input type="checkbox" id="o${i}-buy"${o.buy?' checked':''}> La compro</label>
     </div></th>`).join('');
   const lab = r => `<td class="lab">${r.label}${r.hint?`<small>${r.hint}</small>`:''}</td>`;
@@ -353,13 +341,12 @@ function build(){
     `<tr>${lab(r)}${S.opts.map((o,i)=>`<td class="c${i}"><div class="cell">
       <input class="num" id="o${i}-${r.k}" inputmode="decimal" value="${fmtIn(o[r.k])}" aria-label="${r.label} opción ${LETTERS[i]}">
       ${r.t==='money' ? curSel(`o${i}-${r.k}Cur`, o[r.k+'Cur']) : r.t==='pct' ? '<span class="u">%</span>' : '<span class="u"></span>'}
-    </div>${r.k==='rent' ? `<small class="momnote" id="o${i}-momnote"${o.kind==='mom'?'':' hidden'}>Lo que te pagarían por el depto que deja mamá</small>` : ''}</td>`).join('')}</tr>`).join('');
+    </div></td>`).join('')}</tr>`).join('');
   $('outBody').innerHTML = OUT.map(r => r.sec ? `<tr class="sec"><td class="lab">${r.sec} <span style="text-transform:none;letter-spacing:0" id="baseLab"></span></td><td colspan="5"></td></tr>` :
     `<tr class="${r.cls||''}">${lab(r)}${S.opts.map((o,i)=>`<td class="c${i}"><div class="res rk-n" id="r-${r.k}-${i}">—</div></td>`).join('')}</tr>`).join('');
   $('budget').value = fmtIn(S.budget); $('budgetCur').value = S.budgetCur;
   $('usdArs').value = fmtIn(S.usdArs); $('eurUsd').value = fmtIn(S.eurUsd); $('arsDep').value = fmtIn(S.arsDep);
   $('base').value = S.base;
-  $('owned').value = fmtIn(S.owned); $('ownedCur').value = S.ownedCur; $('ownedGr').value = fmtIn(S.ownedGr); $('spareRate').value = fmtIn(S.spareRate);
 }
 
 /* ---------- ranking ---------- */
@@ -377,30 +364,27 @@ function rank(vals, higherBetter){
   return out;
 }
 
-/* ---------- portfolio: everything marked "La compro" + leftover cash ---------- */
+/* ---------- totals of everything marked "La compro" ---------- */
 function portfolio(res){
   const budget = toBase(S.budget, S.budgetCur, 0);
   const bought = res.map((x,i)=> x.active && S.opts[i].buy);
   const sel = res.filter((x,i)=> bought[i]);
   const put = sel.reduce((s,x)=>s + x.cash, 0);
-  const spare = budget - put, idle = Math.max(0, spare), r = S.spareRate/100;
+  const spare = budget - put;
   const cf = [0], value = [];
   for (let t = 0; t <= 20; t++) {
     if (t > 0) cf.push(sel.reduce((s,x)=>s + x.cf[t], 0));
     value.push(sel.reduce((s,x)=>s + x.sale[t], 0));
   }
-  /* cartera curve: rents collected so far + net sale value + leftover cash grown */
-  const eq = value.map((v,t)=> v + cf.slice(0,t+1).reduce((a,b)=>a+b,0) + idle*Math.pow(1+r,t));
+  /* if sold in year t: net sale value + rents collected so far */
+  const eq = value.map((v,t)=> v + cf.slice(0,t+1).reduce((a,b)=>a+b,0));
   const irrH = {};
   HZ.forEach(H => {
-    const flows = [-(put + idle)];
-    for (let t = 1; t <= H; t++) flows.push(cf[t] + (t === H ? value[H] + idle*Math.pow(1+r,H) : 0));
-    irrH[H] = put + idle > 0 ? irr(flows) : null;
+    const flows = [-put];
+    for (let t = 1; t <= H; t++) flows.push(cf[t] + (t === H ? value[H] : 0));
+    irrH[H] = put > 0 ? irr(flows) : null;
   });
-  const owned0 = toBase(S.owned, S.ownedCur, 0);
-  const owned20 = toBase(S.owned*Math.pow(1+S.ownedGr/100,20), S.ownedCur, 20);
-  return {bought, n: sel.length, put, spare, cf, eq, irr: irrH,
-          worth0: owned0 + Math.max(budget, put), worth20: owned20 + eq[20]};
+  return {bought, n: sel.length, put, spare, cf, eq, irr: irrH, worth20: eq[20]};
 }
 
 /* ---------- render results ---------- */
@@ -446,13 +430,13 @@ function render(){
   $('cEmpty').hidden = P.n > 0; $('cBody').hidden = P.n === 0;
   if (P.n) {
     $('cPut').textContent = money(P.put);
-    $('cPutSub').textContent = `${P.n} ${P.n===1?'propiedad':'propiedades'}` + (spare >= 0 ? ` · te sobran ${money(spare)}` : ` · te pasás por ${money(-spare)}`);
+    $('cPutSub').textContent = `En ${P.n} ${P.n===1?'propiedad':'propiedades'}, con gastos y obras.`;
     $('cRent').textContent = money(P.cf[1]);
-    $('cRentSub').textContent = `Año 1. En el año 10: ${money(P.cf[10])}; en el 20: ${money(P.cf[20])}.`;
+    $('cRentSub').textContent = `El primer año. En el año 10: ${money(P.cf[10])}.`;
     $('cIrr').textContent = pct(P.irr[20]);
-    $('cIrrSub').textContent = `A 20 años, contando la plata que sobra. A 5 / 10 / 15 años: ${[5,10,15].map(h=>pct(P.irr[h])).join(' / ')}.`;
+    $('cIrrSub').textContent = `Todo junto, como si fuera una sola inversión.`;
     $('cWorth').textContent = money(P.worth20);
-    $('cWorthSub').textContent = `Hoy: ${money(P.worth0)} (lo que ya tenés + el presupuesto). Crece ${nf2.format(Math.round(P.worth20/P.worth0*10)/10)} veces.`;
+    $('cWorthSub').textContent = `Lo que valen al vender + alquileres cobrados. ${nf2.format(Math.round(P.worth20/P.put*10)/10)} veces lo que ponés.`;
   }
 
   /* verdict */
@@ -476,7 +460,7 @@ function render(){
 function drawChart(res, P){
   const svg = $('chart'), W = 900, H = 320, L = 78, R = 16, T = 14, B = 34;
   const series = res.map((x,i)=>({x,i})).filter(o=>o.x.active);
-  $('legend').innerHTML = (P.n ? `<span><span class="swatch" style="background:#1f2933;border-radius:2px;width:18px;height:4px"></span><b>Mi cartera</b> (lo comprado + la plata que sobra)</span>` : '') +
+  $('legend').innerHTML = (P.n ? `<span><span class="swatch" style="background:#1f2933;border-radius:2px;width:18px;height:4px"></span><b>Total de lo que comprás</b></span>` : '') +
     series.map(o=>`<span><span class="swatch" style="background:${COLORS[o.i]}"></span>${(S.opts[o.i].name||'Opción '+LETTERS[o.i]).replace(/</g,'&lt;')}</span>`).join('');
   if (!series.length) { svg.innerHTML = `<text x="${W/2}" y="${H/2}" text-anchor="middle">Sin opciones cargadas</text>`; return; }
   let mn = 0, mx = 0;
@@ -497,7 +481,7 @@ function drawChart(res, P){
   series.forEach(o=>{ const c = o.x.cash; if (c >= y0 && c <= y1) g += `<line x1="${sx(0)-6}" x2="${sx(0)+6}" y1="${sy(c)}" y2="${sy(c)}" stroke="${HEX[o.i]}" stroke-width="2"/>`; });
   if (P.n) {
     g += `<polyline points="${P.eq.map((v,t)=>`${sx(t).toFixed(1)},${sy(v).toFixed(1)}`).join(' ')}" fill="none" stroke="#1f2933" stroke-width="4" stroke-dasharray="10 6" stroke-linejoin="round"/>`;
-    g += `<text x="${sx(20)-6}" y="${sy(P.eq[20])-10}" text-anchor="end" style="fill:#1f2933;font-weight:700">Mi cartera ${moneyShort(P.eq[20])} (sin el depto que ya tenés)</text>`;
+    g += `<text x="${sx(20)-6}" y="${sy(P.eq[20])-10}" text-anchor="end" style="fill:#1f2933;font-weight:700">Total ${moneyShort(P.eq[20])}</text>`;
   }
   svg.innerHTML = g;
 }
@@ -510,13 +494,11 @@ document.addEventListener('input', e=>{
     const o = S.opts[+m[1]], k = m[2];
     const i = +m[1];
     if (k === 'name') o.name = e.target.value;
-    else if (k === 'on') { o.on = e.target.checked; if (!o.on) { o.buy = false; $(`o${i}-buy`).checked = false; } }
-    else if (k === 'buy') { o.buy = e.target.checked; if (o.buy) { o.on = true; $(`o${i}-on`).checked = true; } }
-    else if (k === 'kind') { o.kind = e.target.value; $(`o${i}-momnote`).hidden = o.kind !== 'mom'; }
+    else if (k === 'buy') o.buy = e.target.checked;
     else if (k.endsWith('Cur')) o[k] = e.target.value;
     else o[k] = parseNum(e.target.value);
-  } else if (['budget','usdArs','eurUsd','arsDep','owned','ownedGr','spareRate'].includes(id)) S[id] = parseNum(e.target.value);
-  else if (id === 'budgetCur' || id === 'base' || id === 'ownedCur') S[id] = e.target.value;
+  } else if (['budget','usdArs','eurUsd','arsDep'].includes(id)) S[id] = parseNum(e.target.value);
+  else if (id === 'budgetCur' || id === 'base') S[id] = e.target.value;
   else return;
   render();
 });
@@ -529,12 +511,13 @@ document.addEventListener('focusout', e=>{
 function fitNum(el){ el.style.fontSize = el.value.length > 9 ? '12.5px' : el.value.length > 7 ? '14.5px' : ''; }
 function fitAll(){ document.querySelectorAll('td input.num').forEach(fitNum); }
 $('resetBtn').addEventListener('click', ()=>{ S = example(); build(); fitAll(); render(); flash('Volvió al ejemplo'); });
+$('clearBtn').addEventListener('click', ()=>{ S.opts = [0,1,2,3,4].map(()=>blank()); build(); fitAll(); render(); flash('Columnas vacías: cargá tus propiedades'); window.scrollTo({top: $('tbl').getBoundingClientRect().top + scrollY - 20}); });
 $('copyBtn').addEventListener('click', ()=>{
   const lines = ['Comparador de propiedades (en ' + (S.base==='EUR'?'euros':'dólares') + ')'];
   lastRes.forEach((x,i)=>{ if (!x.active) return;
     lines.push(`• ${S.opts[i].name||'Opción '+LETTERS[i]}: capital ${money(x.cash)}, rinde año 1 ${pct(x.yield1)}, anual a 5/10/15/20 años ${HZ.map(H=>pct(x['irr'+H])).join(' / ')}, x${nf2.format(Math.round(x.mult*10)/10)} a 20 años`); });
   lines.push($('vtext').textContent);
-  if (lastP && lastP.n) lines.push(`Mi cartera (${lastP.n} ${lastP.n===1?'propiedad':'propiedades'}): pongo ${money(lastP.put)}, alquiler neto año 1 ${money(lastP.cf[1])}, rinde ${pct(lastP.irr[20])} por año a 20 años, patrimonio de ${money(lastP.worth0)} hoy a ${money(lastP.worth20)} en 20 años.`);
+  if (lastP && lastP.n) lines.push(`Total de lo que compro (${lastP.n}): pongo ${money(lastP.put)}, cobro ${money(lastP.cf[1])} netos por año, rinde ${pct(lastP.irr[20])} anual a 20 años, en 20 años tengo ${money(lastP.worth20)}.`);
   const txt = lines.join('\n');
   const done = () => flash('Copiado');
   try { navigator.clipboard.writeText(txt).then(done, ()=>fallback(txt)); } catch(err) { fallback(txt); }
